@@ -31,10 +31,12 @@ class JiraSearch:
       "startAt": start_at
     }
 
+    assert self.__endpoint is not None
+
     response = requests.request(
       "POST",
       self.__endpoint,
-      data = payload,
+      data = json.dumps(payload),
       headers = JiraSearch.headers,
       auth = self.__auth)
 

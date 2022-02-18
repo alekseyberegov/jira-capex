@@ -5,7 +5,7 @@ from os.path import exists, expanduser, join
 class ConfigLoader:
     def __init__(self, name: str) -> None:
         files = []
-        for loc in os.curdir, expanduser("~"), os.environ.get("JIRACAPEX_CONF"):
+        for loc in os.curdir, expanduser("~"), os.environ.get("JIRACAPEX_CONF", "/etc"):
             file = join(loc, name)
             if exists(file):
                 files.append(file)
