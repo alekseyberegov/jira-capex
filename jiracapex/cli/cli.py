@@ -2,12 +2,22 @@ import os
 import sys
 import click
 
+from jiracapex.conf.config_loader import ConfigLoader
+from requests.auth import HTTPBasicAuth
+
 CONTEXT_SETTINGS = dict(auto_envvar_prefix="jiracapex")
 
 class Environment:
     def __init__(self):
         self.verbose = False
         self.home = os.getcwd()
+        self.__config = (ConfigLoader("jiracapex.ini")).config()
+
+    def auth(self) -> HTTPBasicAuth:
+       return HTTPBasicAuth(self.__config.get('auth', 'user'), self.__config.get('auth', 'token'))
+
+    def config(self, section: str, option: str) -> str:
+        return self.__config.get(section, option)
 
     def log(self, msg, *args):
         """Logs a message to stderr."""
@@ -25,18 +35,18 @@ cmd_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), "commands")
 
 class JiraCLI(click.MultiCommand):
     def list_commands(self, ctx):
-        rv = []
+        cmds = []
         for filename in os.listdir(cmd_folder):
             if filename.endswith(".py") and filename.startswith("cmd_"):
-                rv.append(filename[4:-3])
-        rv.sort()
-        return rv
+                cmds.append(filename[4:-3])
+        cmds.sort()
+        return cmds
 
     def get_command(self, ctx, name):
         try:
             mod = __import__(f"jiracapex.cli.commands.cmd_{name}", None, None, ["cli"])
-        except ImportError:
-            return
+        except ImportError as e:
+            raise e
         return mod.cli
 
 

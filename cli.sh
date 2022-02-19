@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python jiracapex/cli/cli.py
+python jiracapex/cli/cli.py "${@:1}"
