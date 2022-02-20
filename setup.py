@@ -20,10 +20,16 @@ setup(
         'pytest==7.0.1',
         'requests==2.27.1',
         'tomli==2.0.1',
-        'urllib3==1.26.8'
+        'urllib3==1.26.8',
+        'pandas==1.4.1',
+        'numpy==1.22.2',
+        'python-dateutil==2.8.2',
+        'pytz==2021.3',
+        'six==1.16.0'
     ],
     setup_requires=['pytest-runner'],
     tests_require=['pytest']
 )
+
 
 
