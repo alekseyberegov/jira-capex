@@ -25,7 +25,9 @@ setup(
         'numpy==1.22.2',
         'python-dateutil==2.8.2',
         'pytz==2021.3',
-        'six==1.16.0'
+        'six==1.16.0',
+        'greenlet==1.1.2',
+        'SQLAlchemy==1.4.31'
     ],
     setup_requires=['pytest-runner'],
     tests_require=['pytest']
