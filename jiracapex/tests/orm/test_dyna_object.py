@@ -1,12 +1,16 @@
-import pytest, json
+import pytest, datetime
 from typing import Dict
 from datetime import datetime
-from sqlalchemy import MetaData, Table
+from sqlalchemy import MetaData, Table, create_engine, inspect, select
 from jiracapex.orm.dyna_object import DynaObject
 
 @pytest.fixture
 def dyna_obj():
     return DynaObject('map_ping')
+
+@pytest.fixture
+def engine():
+    return create_engine('sqlite:///:memory:', echo = True)
 
 class TestDynaObject:
     def test_table_name(self, dyna_obj: DynaObject) -> None:
@@ -31,15 +35,15 @@ class TestDynaObject:
         assert dt.year  == 2022
         assert dt.day   == 31
     
-    @pytest.mark.parametrize("data", [({'field' : { 'prop1': {'nm': 'jiracapex', 'id': '12345'}}})])
-    def test_map_object(self, dyna_obj: DynaObject, data: Dict) -> None:
-        out: Dict = dyna_obj.map_object(data)
+    @pytest.mark.parametrize("data", [({'field' : { 'prop1': {'nm': 'jiracapex', 'id': 12345}}})])
+    def test_cast(self, dyna_obj: DynaObject, data: Dict) -> None:
+        out: Dict = dyna_obj.cast(data)
         assert out['prop1_nm'] == data['field']['prop1']['nm']
         assert out['prop1_id'] == data['field']['prop1']['id']
 
-    def test_make_table(self, dyna_obj: DynaObject) -> None:
+    def test_storage(self, dyna_obj: DynaObject) -> None:
         metadata: MetaData = MetaData()
-        table: Table = dyna_obj.make_table(metadata)
+        table: Table = dyna_obj.storage(metadata)
 
         assert 'prop1_nm' in table.c
         assert 'prop1_id' in table.c
@@ -48,10 +52,48 @@ class TestDynaObject:
         assert 'fkey2_id' in table.c
         assert 'fkey3_id' in table.c
         assert 'prop1_id' in table.primary_key
-        
+
         assert dyna_obj.table_name == table.name
         assert str(table.c.prop1_dt.type) == 'DATE'
         assert str(table.c.prop1_nm.type) == 'VARCHAR(120)'
         assert str(table.c.prop1_id.type) == 'INTEGER'
         assert str(table.c.fkey1_id.type) == 'INTEGER'
 
+    def test_create_table(self, dyna_obj: DynaObject, engine) -> None:
+        table: Table = dyna_obj.bind(engine).create_table()
+        inspector = inspect(engine)
+        assert inspector.has_table(table.name)
+
+    @pytest.mark.parametrize("data", [({'field' : { 'prop1': {'nm': 'jiracapex', 'id': 12345, 'dt': '2022-02-27T22:44:00.000Z' }}})])
+    def test_insert(self, dyna_obj: DynaObject, engine, data: Dict) -> None:
+        dyna_obj.bind(engine).create_table()
+        dyna_obj.insert(data)
+
+        rows = None
+        with engine.connect() as conn:
+            rows = conn.execute(select(dyna_obj.table)).all()
+        
+        assert len(rows) == 1
+        assert rows[0]['prop1_nm'] == data['field']['prop1']['nm']
+        assert rows[0]['prop1_id'] == data['field']['prop1']['id']
+
+    @pytest.mark.parametrize("data", [({'field' : { 'prop1': {}}})])
+    def test_flush(self, dyna_obj: DynaObject, engine, data: Dict) -> None:
+        dyna_obj.bind(engine).create_table()
+        ids = [i for i in range(10, 110, 10)]
+        nms = [f"item {i}" for i in ids]
+        for i in ids:
+            data['field']['prop1']['id'] = i
+            data['field']['prop1']['nm'] = f"item {i}"
+            data['field']['prop1']['dt'] = datetime.now().isoformat() + 'Z'
+            dyna_obj.add(data)
+        dyna_obj.flush()
+
+        rows = None
+        with engine.connect() as conn:
+            rows = conn.execute(select(dyna_obj.table)).all()
+
+        assert len(rows) == 10
+        for r in rows:
+            assert r['prop1_id'] in ids
+            assert r['prop1_nm'] in nms
