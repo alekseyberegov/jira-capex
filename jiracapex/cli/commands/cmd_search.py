@@ -1,5 +1,4 @@
 import click, json
-import pandas as pd 
 
 from jiracapex.cli.cli import pass_environment
 from jiracapex.api.jira_search import JiraSearch

@@ -1,9 +1,12 @@
 import os
 import sys
 import click
+import json
 
 from jiracapex.conf.config_loader import ConfigLoader
 from requests.auth import HTTPBasicAuth
+from typing import Dict
+from os.path import exists, expanduser, join
 
 CONTEXT_SETTINGS = dict(auto_envvar_prefix="jiracapex")
 
@@ -18,6 +21,20 @@ class Environment:
 
     def config(self, section: str, option: str) -> str:
         return self.__config.get(section, option)
+
+    def settings(self) -> Dict:
+        data = None
+        file = join(expanduser("~"), '.jiracli.json')
+        if (exists(file)):
+            with open(file, 'r') as fd:
+                data = json.load(fd)
+        
+        return data if data is not None else {'version': 1}
+
+    def save(self, settings: Dict):
+        file = join(expanduser("~"), '.jiracli.json')
+        with open(file, 'w', encoding ='utf8') as fd:
+            json.dump(settings, fd)
 
     def log(self, msg, *args):
         """Logs a message to stderr."""
