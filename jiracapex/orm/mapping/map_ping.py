@@ -4,6 +4,8 @@ table = "prop_table"
 # Fields mapping
 fields_map = {
     'field_prop1_nm':   'prop1_nm',
+    'field_prop2_nm':   'prop2_nm',
+    'field_prop3_nm':   'prop3_nm',
     'field_prop1_id':   'prop1_id',
     'field_prop1_dt':   'prop1_dt',
     'field_fkey1_id':   'fkey1_id',

@@ -1,19 +1,19 @@
 import importlib
-from typing import Dict
+from typing import Dict, List
 from jiracapex.json.utils import flatten_json
 from datetime import datetime
 from sqlalchemy import Table, Column, MetaData, Integer, String, Date
 from sqlalchemy import create_engine, insert
 
 class DynaObject:
-    date_format: str = "%Y-%m-%dT%H:%M:%S.%fZ"
+    date_format: str = "%Y-%m-%dT%H:%M:%S.%f%z"
 
     def __init__(self, name: str) -> None:
         self.__mapping = importlib.import_module('jiracapex.orm.mapping.' + name)
-        self.__fields  = getattr(self.__mapping, 'fields_map')
-        self.__table   = None
-        self.__engine  = None
-        self.__queue   = []
+        self.__fields: Dict = getattr(self.__mapping, 'fields_map')
+        self.__table: str = None
+        self.__engine = None
+        self.__queue: List = []
 
     @property
     def table_name(self) -> str:
@@ -37,10 +37,21 @@ class DynaObject:
 
     @staticmethod
     def to_date(value: str) -> datetime:
+        if value is None:
+            return None
         return datetime.strptime(value, DynaObject.date_format)
 
     def get_field(self, name: str) -> str:
         return self.__fields[name]
+
+    def nodes(self, level: int = 1, delimiter: str = '_'):
+        out: Dict = {}
+        for key in self.__fields.keys():
+            parts = key.split(delimiter)
+            if len(parts) > level:
+                out[parts[level]] = True
+        return out.keys()
+        
 
     def cast(self, obj: Dict) -> Dict:
         out = {}
@@ -48,12 +59,15 @@ class DynaObject:
             if key in self.__fields:
                 col_name: str = self.__fields[key] 
 
-                if col_name == self.primary_key or col_name in self.foreign_keys:
-                    col_value = int(value)
-                elif col_name in self.date_fields:
-                    col_value = self.to_date(value)
-                else:
-                    col_value = value
+                try:
+                    if col_name == self.primary_key or col_name in self.foreign_keys:
+                        col_value = int(value)
+                    elif col_name in self.date_fields:
+                        col_value = self.to_date(value)
+                    else:
+                        col_value = value
+                except ValueError as e:
+                    raise Exception("{0} for {1} does't follow {2}".format(value, col_name, DynaObject.date_format))
 
                 out[col_name] = col_value
         

@@ -1,3 +1,20 @@
+table = 'jira_ol'
+
+# Primary key
+primary_key = 'id'
+
+# Foreign keys
+foreign_keys = [
+    'parent_id',
+    'priority_id', 
+    'status_id', 
+    'issue_type_id',
+    'project_id'
+]
+
+# Date fields
+date_fields = ['status_change_date', 'created_date', 'updated_date']
+
 fields_map = {
     'fields_parent_id' :                                    'parent_id',
     'fields_parent_key' :                                   'parent_key',

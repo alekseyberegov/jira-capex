@@ -1,5 +1,5 @@
 import pytest, datetime
-from typing import Dict
+from typing import Dict, List
 from datetime import datetime
 from sqlalchemy import MetaData, Table, create_engine, inspect, select
 from jiracapex.orm.dyna_object import DynaObject
@@ -97,3 +97,10 @@ class TestDynaObject:
         for r in rows:
             assert r['prop1_id'] in ids
             assert r['prop1_nm'] in nms
+
+    def test_nodes(self, dyna_obj: DynaObject) -> None:
+        nodes: List = dyna_obj.nodes()
+
+        assert 'prop1' in nodes
+        assert 'prop2' in nodes
+        assert 'prop3' in nodes
