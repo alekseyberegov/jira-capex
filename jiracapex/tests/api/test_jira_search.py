@@ -1,7 +1,6 @@
 import pytest
 
 from configparser import ConfigParser
-from configparser import ConfigParser
 from requests import auth
 
 from jiracapex.api.jira_search import JiraSearch
