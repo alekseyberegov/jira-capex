@@ -89,7 +89,7 @@ class DynaObject:
                 elif name.endswith('_meas'):
                     cols.append(Column(name, Float))
                 else:
-                    cols.append(Column(name, String(120)))
+                    cols.append(Column(name, String(250)))
             self.__table = Table(self.table_name, metadata, *cols)
         return self.__table
 
