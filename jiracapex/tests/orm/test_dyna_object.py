@@ -55,7 +55,7 @@ class TestDynaObject:
 
         assert dyna_obj.table_name == table.name
         assert str(table.c.prop1_dt.type) == 'DATE'
-        assert str(table.c.prop1_nm.type) == 'VARCHAR(120)'
+        assert str(table.c.prop1_nm.type) == 'VARCHAR(250)'
         assert str(table.c.prop1_id.type) == 'INTEGER'
         assert str(table.c.fkey1_id.type) == 'INTEGER'
 

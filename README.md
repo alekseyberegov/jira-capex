@@ -19,7 +19,7 @@
   ```
 * Show information about a specific issue
   ```
-  ./cli.sh search "key=BAC-5948" --max_results 1 --flatten
+  ./cli.sh search "key=BAC-5948" --max-results 1 --flatten
   ```
 * Configure the default database
   ```

@@ -8,8 +8,8 @@ from jiracapex.json.utils import flatten_json
 
 @click.command("search", short_help="query Jira using JQL")
 @click.argument("query") 
-@click.option('--start_at', default=0, show_default=True)
-@click.option('--max_results', default=1, show_default=True)
+@click.option('--start-at', default=0, show_default=True)
+@click.option('--max-results', default=1, show_default=True)
 @click.option('--flatten', is_flag=True)
 @pass_environment
 def cli(ctx, query, start_at, max_results, flatten):

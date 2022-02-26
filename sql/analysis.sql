@@ -9,6 +9,9 @@ select count(1) from jira_ol jo
 select max(KEY) from jira_ol jo 
 
 
+select count(1) from jira_issues ji 
+
+
 -- ===========================
 --
 -- Expected vs Actual counts
@@ -45,15 +48,14 @@ group by 1
 
 select *
 from jira_issues ji 
-where points_meas = 21
 
 select assignee_id, assignee_name, count(1)
 from jira_issues ji 
 group by 1, 2
 order by 2, 1
 
-select resolution_name,  count(1)
+select project_name, project_key , status_name, resolution_name ,  count(1)
 from jira_issues ji 
-group by 1
-order by 1
+group by 1, 2, 3
+order by 1, 2, 3
 	

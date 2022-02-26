@@ -4,6 +4,8 @@ from jiracapex.api.jira_endpoint import Endpoint
 import requests
 import json
 
+# https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-search/#api-rest-api-3-search-post
+
 class JiraSearch:
   headers = {
     "Accept": "application/json",
