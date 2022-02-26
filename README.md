@@ -6,10 +6,16 @@
   ./cli.sh load --map map_ol "project = OL" --max_results 400
   ```
   ```
-  ./cli.sh load --map map_bac "project = BAC and created >= 2019-01-01" --max-results 100000
+  ./cli.sh load --map map_bac  "project = BAC  and created >= 2019-01-01" --max-results 100000
+  ./cli.sh load --map map_plat "project = PLAT and created >= 2019-01-01" --max-results 100000
+  ./cli.sh load --map map_arch "project = ARCH and created >= 2019-01-01" --max-results 100000
+  ./cli.sh load --map map_cu   "project = CU   and created >= 2019-01-01" --max-results 100000
+  ./cli.sh load --map map_TWR  "project = TWR  and created >= 2019-01-01" --max-results 100000
+
   ```
   ```
-  ./cli.sh load --map map_bac "project = BAC and created >= 2019-01-01" --max-results 1 --batch-size 1 --no-save
+  ./cli.sh load --map map_bac "project = BAC  and created >= 2019-01-01" --max-results 1 --batch-size 1 --no-save
+  ./cli.sh load --map map_ilv "key = ILV-4977 and created >= 2019-01-01" --max-results 1 --batch-size 1 --no-save
   ```
 * Show information about a specific issue
   ```

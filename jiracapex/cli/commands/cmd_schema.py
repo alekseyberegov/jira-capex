@@ -8,8 +8,9 @@ from jiracapex.orm.default_mapping import DEFAULT_FIELD_MAPPING, BLOCKED_FIELDS
 @click.command("schema", short_help="generate schema")
 @click.argument("key") 
 @click.option('--no-nulls', is_flag=True)
+@click.option('--filter')
 @pass_environment
-def cli(ctx, key, no_nulls):
+def cli(ctx, key, no_nulls, filter):
     search: JiraSearch = JiraSearch(ctx.endpoint('search_url'))
     search.set_fields(["-all"])
     resp = search.query(f"key={key}", start_at=0, max_results=1)
@@ -22,7 +23,8 @@ def cli(ctx, key, no_nulls):
                             and key not in BLOCKED_FIELDS:
                     col = DEFAULT_FIELD_MAPPING.get(key, suggest_column(key))
                     if value is not None or not no_nulls:
-                        ctx.log("'" + key + "': " + "'"+ col +"', # " + str(value)) 
+                        if filter is None or key.find(filter) != -1:
+                            ctx.log("'" + key + "': " + "'"+ col +"', # " + str(value)) 
 
 def suggest_column(key: str) -> str:
     parts: List = key.split('_')

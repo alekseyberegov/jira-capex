@@ -14,7 +14,7 @@ foreign_keys = [
 ]
 
 # Date fields
-date_fields = ['status_change_date', 'created_date', 'updated_date']
+date_fields = ['status_change_date', 'created_date', 'updated_date', 'resolution_date']
 
 fields_map = {
     'fields_parent_id' :                                    'parent_id',
@@ -46,6 +46,9 @@ fields_map = {
     'fields_issuetype_description' :                        'issue_type_desc',
     'fields_issuetype_subtask' :                            'issue_type_subtask',
     'fields_issuetype_hierarchyLevel' :                     'issue_type_hierarchy',
+    'fields_resolution_name':                               'resolution_name', 
+    'fields_resolution_description':                        'resolution_description',
+    'fields_resolutiondate':                                'resolution_date',
     'fields_project_id' :                                   'project_id',
     'fields_project_key' :                                  'project_key',
     'fields_project_projectTypeKey' :                       'project_type',

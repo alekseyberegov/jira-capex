@@ -1,6 +1,7 @@
 from typing import Dict, List
 
 BLOCKED_FIELDS: List[str] = [
+    'expand',
     'fields_parent_fields_status_self',
     'fields_parent_fields_status_description',
     'fields_parent_fields_status_name',
@@ -8,7 +9,20 @@ BLOCKED_FIELDS: List[str] = [
     'fields_priority_self',
     'fields_environment',
     'fields_security',
-    'fields_issuetype_description'
+    'fields_issuetype_description',
+    'fields_workratio',
+    'fields_watches_self',
+    'fields_watches_watchCount',
+    'fields_watches_isWatching',
+    'fields_progress_progress',
+    'fields_progress_total',
+    'fields_votes_self',
+    'fields_votes_votes',
+    'fields_votes_hasVoted',
+    'fields_customfield_10400_hasEpicLinkFieldDependency',
+    'fields_customfield_10400_showField',
+    'fields_customfield_10400_nonEditableReason_reason',
+    'fields_customfield_10400_nonEditableReason_message'
 ]
 
 DEFAULT_FIELD_MAPPING: Dict[str, str] = {
@@ -50,5 +64,10 @@ DEFAULT_FIELD_MAPPING: Dict[str, str] = {
     'fields_summary' :                                      'summary',
     'fields_description_type' :                             'desc_type',
     'fields_resolution':                                    'resolution', 
-    'fields_customfield_10022':                             'points_meas' # 1.0
+    'fields_resolutiondate':                                'resolution_date', # Example: 2018-09-20T15:45:57.937-0500
+    'fields_customfield_10022':                             'points_meas', # Example: 1.0
+    'fields_description':                                   'description',     
+    'fields_description_content_0_type' :                   'content_type',
+    'fields_description_content_0_content_0_type' :         'content_type_0_type',
+    'fields_description_content_0_content_0_text' :         'content_type_0_text'
 }

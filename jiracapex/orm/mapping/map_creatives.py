@@ -33,7 +33,7 @@ fields_map = {
     'fields_parent_fields_priority_name':               'parent_priority_name', 
     'fields_parent_fields_priority_id':                 'parent_priority_id',
     'fields_parent_fields_status_statusCategory_id':    'parent_status_id',
-    'fields_parent_fields_status_statusCategory_key':   'parent_status_key', # 
+    'fields_parent_fields_status_statusCategory_key':   'parent_status_key', 
     'fields_resolution_name':                           'resolution_name', 
     'fields_resolution_description':                    'resolution_description',
     'fields_resolutiondate':                            'resolution_date',
