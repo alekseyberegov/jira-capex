@@ -1,6 +1,6 @@
 from array import array
 from typing import Any
-from requests.auth import AuthBase
+from jiracapex.api.jira_endpoint import Endpoint
 import requests
 import json
 
@@ -10,9 +10,8 @@ class JiraSearch:
     "Content-Type": "application/json"
   }
 
-  def __init__(self, endpoint: str, auth: AuthBase) -> None:
+  def __init__(self, endpoint: Endpoint) -> None:
       self.__endpoint = endpoint
-      self.__auth = auth
       self.__expand = []
 
   def set_expand(self, expand: array) -> None:
@@ -35,9 +34,9 @@ class JiraSearch:
 
     response = requests.request(
       "POST",
-      self.__endpoint,
+      self.__endpoint.url,
       data = json.dumps(payload),
       headers = JiraSearch.headers,
-      auth = self.__auth)
+      auth = self.__endpoint.auth)
 
     return json.loads(response.text)

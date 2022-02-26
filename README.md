@@ -1,8 +1,33 @@
 # Jira Analytics
 
-## Useful command
+## Available commands
 * Load issues into a database with the given project type
   ```
-  ./cli.sh load --map map_ol "project = OL" --max_results 400s
+  ./cli.sh load --map map_ol "project = OL" --max_results 400
+  ```
+  ```
+  ./cli.sh load --map map_bac "project = BAC and created >= 2019-01-01" --max-results 100000
+  ```
+  ```
+  ./cli.sh load --map map_bac "project = BAC and created >= 2019-01-01" --max-results 1 --batch-size 1 --no-save
+  ```
+* Show information about a specific issue
+  ```
+  ./cli.sh search "key=BAC-5948" --max_results 1 --flatten
+  ```
+* Configure the default database
+  ```
+  ./cli.sh config db ~/jira.db
+  ```
+* Show configuration
+  ```
+  /cli.sh config show
+  ```
+
+## JQL examples
+* Issues worked on during specific dates
+  ```
+  (updated >= 2021-01-01 AND updated < 2022-01-01 OR resolutiondate >= 2021-01-01 AND resolutiondate < 2022-01-01) 
+  ORDER BY resolution ASC, resolved DESC, created DESC
   ```
 * 

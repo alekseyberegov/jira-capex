@@ -1,5 +1,5 @@
-from typing import array, Any
-from requests.auth import AuthBase
+from typing import Any
+from jiracapex.api.jira_endpoint import Endpoint
 import requests
 import json
 
@@ -8,15 +8,14 @@ class JiraProject:
         "Accept": "application/json",
         "Content-Type": "application/json"}
 
-    def __init__(self, endpoint: str, auth: AuthBase) -> None:
+    def __init__(self, endpoint:  Endpoint) -> None:
         self.__endpoint = endpoint
-        self.__auth = auth
 
     def query(self) -> Any:
         response = requests.request(
             "GET",
-            self.__endpoint,
+            self.__endpoint.url,
             headers=JiraProject.headers,
-            auth=self.__auth)
+            auth=self.__endpoint.auth)
 
         return json.loads(response.text)

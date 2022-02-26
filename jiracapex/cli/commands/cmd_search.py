@@ -13,7 +13,7 @@ from jiracapex.json.utils import flatten_json
 @click.option('--flatten', is_flag=True)
 @pass_environment
 def cli(ctx, query, start_at, max_results, flatten):
-    search: JiraSearch = JiraSearch(ctx.config('jira', 'search_url'), ctx.auth())
+    search: JiraSearch = JiraSearch(ctx.endpoint('search_url'))
     search.set_fields(["-all"])
     resp = search.query(query, start_at=start_at, max_results=max_results)
 

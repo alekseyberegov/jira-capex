@@ -2,7 +2,7 @@ import importlib
 from typing import Dict, List
 from jiracapex.json.utils import flatten_json
 from datetime import datetime
-from sqlalchemy import Table, Column, MetaData, Integer, String, Date
+from sqlalchemy import Table, Column, MetaData, Integer, String, Date, Float
 from sqlalchemy import create_engine, insert
 
 class DynaObject:
@@ -49,7 +49,10 @@ class DynaObject:
         for key in self.__fields.keys():
             parts = key.split(delimiter)
             if len(parts) > level:
-                out[parts[level]] = True
+                field = parts[level]
+                if field == 'customfield':
+                    field = field + '_' + parts[level+1]
+                out[field] = True
         return out.keys()
         
 
@@ -83,6 +86,8 @@ class DynaObject:
                     cols.append(Column(name, Integer))
                 elif name in self.date_fields:
                     cols.append(Column(name, Date))
+                elif name.endswith('_meas'):
+                    cols.append(Column(name, Float))
                 else:
                     cols.append(Column(name, String(120)))
             self.__table = Table(self.table_name, metadata, *cols)
@@ -117,6 +122,13 @@ class DynaObject:
 
     def add(self, obj: Dict) -> None:
         self.__queue.append(self.cast(obj))
+
+    def cached(self):
+        for o in self.__queue:
+            yield o
+
+    def clear(self) -> None:
+        self.__queue.clear()
 
     def flush(self) -> None:
         if len(self.__queue) > 0:

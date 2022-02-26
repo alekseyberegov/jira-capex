@@ -4,6 +4,7 @@ import click
 import json
 
 from jiracapex.conf.config_loader import ConfigLoader
+from jiracapex.api.jira_endpoint import Endpoint
 from requests.auth import HTTPBasicAuth
 from typing import Dict
 from os.path import exists, expanduser, join
@@ -15,9 +16,12 @@ class Environment:
         self.verbose = False
         self.home = os.getcwd()
         self.__config = (ConfigLoader("jiracapex.ini")).config()
-
+        
     def auth(self) -> HTTPBasicAuth:
        return HTTPBasicAuth(self.__config.get('auth', 'user'), self.__config.get('auth', 'token'))
+
+    def endpoint(self, name: str) -> Endpoint:
+       return Endpoint(self.config('jira', name), self.auth())
 
     def config(self, section: str, option: str) -> str:
         return self.__config.get(section, option)
