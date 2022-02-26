@@ -1,5 +1,5 @@
 import click, json
-
+from datetime import date, datetime
 from jiracapex.cli.cli import pass_environment
 from jiracapex.api.jira_search import JiraSearch
 from jiracapex.orm.dyna_object import DynaObject
@@ -30,7 +30,7 @@ def cli(ctx, query, map, max_results, batch_size, no_save):
             cnt += 1
         if no_save:
             for o in dyna_obj.cached():
-                ctx.log(o)
+                ctx.log(json.dumps(o, sort_keys=True, indent=4, separators=(",", ": "), default=json_serial))
             dyna_obj.clear()
         else:
             dyna_obj.flush()
@@ -38,4 +38,8 @@ def cli(ctx, query, map, max_results, batch_size, no_save):
             break
         start_at += cnt
 
+def json_serial(obj):
+    """JSON serializer for objects not serializable by default json code"""
 
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
