@@ -56,8 +56,7 @@ class DynaObject:
         return out.keys()
         
 
-    def cast(self, obj: Dict) -> Dict:
-        out = {}
+    def cast(self, obj: Dict, out: Dict = {}) -> Dict:
         for key, value in flatten_json(obj).items():
             if key in self.__fields:
                 col_name: str = self.__fields[key] 
@@ -70,7 +69,7 @@ class DynaObject:
                     else:
                         col_value = value
                 except ValueError as e:
-                    raise Exception("{0} for {1} does't follow {2}".format(value, col_name, DynaObject.date_format))
+                    raise Exception("{0} for {1} doesn't follow {2}".format(value, col_name, DynaObject.date_format))
 
                 out[col_name] = col_value
         
