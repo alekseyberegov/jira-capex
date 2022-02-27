@@ -3,7 +3,7 @@ from typing import Dict, List
 from jiracapex.cli.cli import pass_environment
 from jiracapex.api.jira_search import JiraSearch
 from jiracapex.json.utils import flatten_json
-from jiracapex.orm.default_mapping import DEFAULT_FIELD_MAPPING, BLOCKED_FIELDS
+from jiracapex.orm.default_issue import DEFAULT_FIELD_MAPPING, BLOCKED_FIELDS
 
 @click.command("schema", short_help="generate schema")
 @click.argument("key") 

@@ -46,16 +46,25 @@ select points_meas , count(1)
 from jira_issues ji 
 group by 1
 
-select *
+select id, "key", *
 from jira_issues ji 
 
-select assignee_id, assignee_name, count(1)
+select assignee_id, assignee_name, count(1) as cnt
 from jira_issues ji 
 group by 1, 2
-order by 2, 1
+order by 3 desc
 
 select project_name, project_key , status_name, resolution_name ,  count(1)
 from jira_issues ji 
 group by 1, 2, 3
 order by 1, 2, 3
+
+
+drop table jira_changelog1 
 	
+
+select count(1) as cnt
+, count(distinct issue_id) as issue_cnt
+from jira_changelog
+
+select * from jira_issues ji  where id = 56756

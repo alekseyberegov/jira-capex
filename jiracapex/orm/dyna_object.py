@@ -3,7 +3,7 @@ from typing import Dict, List
 from jiracapex.json.utils import flatten_json
 from datetime import datetime
 from sqlalchemy import Table, Column, MetaData, Integer, String, Date, Float
-from sqlalchemy import create_engine, insert
+from sqlalchemy import create_engine, insert, select
 
 class DynaObject:
     date_format: str = "%Y-%m-%dT%H:%M:%S.%f%z"
@@ -56,7 +56,8 @@ class DynaObject:
         return out.keys()
         
 
-    def cast(self, obj: Dict, out: Dict = {}) -> Dict:
+    def cast(self, obj: Dict, extra: Dict = {}) -> Dict:
+        out = dict(extra)
         for key, value in flatten_json(obj).items():
             if key in self.__fields:
                 col_name: str = self.__fields[key] 
@@ -112,6 +113,12 @@ class DynaObject:
     def bind(self, engine) -> 'DynaObject':
         self.__engine = engine
         return self
+
+    def get_primary_keys(self, column: str='id'):
+        table: Table = self.create_table()
+        with self.__engine.connect() as conn:
+            for row in conn.execute(select(table.c[column])):
+                yield row[column]
 
     def insert(self, obj: Dict) -> None:
         with self.__engine.connect() as conn:

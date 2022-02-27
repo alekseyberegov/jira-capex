@@ -1,10 +1,10 @@
 import pytest, datetime
 from typing import Dict, List
 from datetime import datetime
-from sqlalchemy import MetaData, Table, create_engine, inspect, select
+from sqlalchemy import MetaData, Table, create_engine, inspect, select, text
 from jiracapex.orm.dyna_object import DynaObject
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def dyna_obj():
     return DynaObject('map_ping')
 
@@ -76,6 +76,30 @@ class TestDynaObject:
         assert len(rows) == 1
         assert rows[0]['prop1_nm'] == data['field']['prop1']['nm']
         assert rows[0]['prop1_id'] == data['field']['prop1']['id']
+
+    def test_get_ids(self, dyna_obj: DynaObject, engine) -> None:
+        with engine.connect() as conn:
+            tran = conn.begin()
+            conn.execute(text("CREATE TABLE prop_table (prop1_id int, prop1_nm varchar(10))"))
+            conn.execute(text("INSERT INTO  prop_table (prop1_id, prop1_nm) VALUES (:prop1_id, :prop1_nm)"),
+                [
+                    {"prop1_id": 10, "prop1_nm": "text 1"}, 
+                    {"prop1_id": 20, "prop1_nm": "text 2"},
+                    {"prop1_id": 30, "prop1_nm": "text 3"}
+                ]
+            )
+            tran.commit()
+
+        dyna_obj.bind(engine).create_table()
+        ids = {}
+        for id in dyna_obj.get_primary_keys('prop1_id'):
+            ids[str(id)] = id
+
+        assert ids['10'] == 10
+        assert ids['20'] == 20
+        assert ids['30'] == 30
+
+
 
     @pytest.mark.parametrize("data", [({'field' : { 'prop1': {}}})])
     def test_flush(self, dyna_obj: DynaObject, engine, data: Dict) -> None:
