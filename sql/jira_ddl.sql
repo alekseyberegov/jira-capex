@@ -22,3 +22,10 @@ CREATE TABLE jira_support_issues (
 );
 
 
+CREATE TABLE jira_former_employees (
+	id VARCHAR(100),
+	name VARCHAR(100),
+	CONSTRAINT jira_former_employees_PK PRIMARY KEY (id)
+);
+
+

@@ -29,6 +29,10 @@
   ```
   /cli.sh config show
   ```
+* Load changelog
+  ```
+  ./cli.sh changelog all --max-results 100
+  ```
 
 ## JQL examples
 * Issues worked on during specific dates
