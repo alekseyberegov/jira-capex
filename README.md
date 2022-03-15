@@ -40,4 +40,8 @@
   (updated >= 2021-01-01 AND updated < 2022-01-01 OR resolutiondate >= 2021-01-01 AND resolutiondate < 2022-01-01) 
   ORDER BY resolution ASC, resolved DESC, created DESC
   ```
-* 
+
+## JIRA API references
+* https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/#api-rest-api-3-issue-issueidorkey-changelog-get
+* https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-search/#api-rest-api-3-search-post
+* https://developer.atlassian.com/cloud/jira/platform/basic-auth-for-rest-apis/
