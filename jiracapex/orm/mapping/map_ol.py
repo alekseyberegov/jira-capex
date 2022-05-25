@@ -59,5 +59,7 @@ fields_map = {
     'fields_description_type' :                             'desc_type',
     'fields_description_content_0_type' :                   'content_type',
     'fields_description_content_0_content_0_type' :         'content_type_0_type',
-    'fields_description_content_0_content_0_text' :         'content_type_0_text'
+    'fields_description_content_0_content_0_text' :         'content_type_0_text',
+    'fields_customfield_11819_value':                       'capex_category',
+    'fields_customfield_11808_value':                       'porject_driver'
 }

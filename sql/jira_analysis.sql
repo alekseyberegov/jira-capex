@@ -1,8 +1,9 @@
 
-delete from jira_issues 
 
-drop table jira_issues 
 
+select 'map_'||lower(project_key), count(1), max(created_date)
+from jira_issues ji 
+group by 1
 
 SELECT assignee_email, assignee_name, created_date  , *
 FROM jira_issues
@@ -24,6 +25,12 @@ from (
 	group by 1
 )
 
+select max(created_date)
+from jira_issues ji 
+
+select created_date, *
+from jira_ol jo 
+order by 1 desc
 
 WITH RECURSIVE generate_series(value) AS (
   SELECT 3052

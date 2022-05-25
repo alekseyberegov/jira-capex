@@ -15,7 +15,8 @@
   ```
   ```
   ./cli.sh load --map map_bac "project = BAC  and created >= 2019-01-01" --max-results 1 --batch-size 1 --no-save
-  ./cli.sh load --map map_ilv "key = ILV-4977 and created >= 2019-01-01" --max-results 1 --batch-size 1 --no-save
+  ./cli.sh load --map map_ilv "key = ILV-4977" --max-results 1 --batch-size 1 --no-save
+  ./cli.sh load --map map_ol  "key = OL-249"   --max-results 1 --batch-size 1 --no-save
   ```
 * Show information about a specific issue
   ```

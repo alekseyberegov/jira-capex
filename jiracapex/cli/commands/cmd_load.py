@@ -25,6 +25,10 @@ def cli(ctx, query, map, max_results, batch_size, no_save):
     while start_at < max_results:
         resp = search.query(query, start_at=start_at, max_results=batch_size)
         cnt: int = 0
+        if 'issues' not in resp:
+            ctx.log(resp)
+            break;
+
         for r in resp['issues']:
             dyna_obj.add(r)
             cnt += 1
