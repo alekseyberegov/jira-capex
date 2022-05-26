@@ -1,4 +1,53 @@
 
+select count(1)
+from jira_issues ji 
+
+
+select count(1)
+from jira_changelog jc 
+
+select count(1)
+from jira_status js 
+
+
+
+
+INSERT into jira_status(id, status_name_from, status_from, status_name_to, status_to, issue_id, created_date , author_id, author_name )
+		select id
+					, case when items_0_field_name = 'status' then items_0_from_text
+						when items_1_field_name = 'status' then items_1_from_text
+						when items_2_field_name = 'status' then items_2_from_text
+						when items_3_field_name = 'status' then items_3_from_text
+						when items_4_field_name = 'status' then items_4_from_text			
+					end as status_name_from
+					, case when items_0_field_name = 'status' then items_0_from
+						when items_1_field_name = 'status' then items_1_from
+						when items_2_field_name = 'status' then items_2_from
+						when items_3_field_name = 'status' then items_3_from
+						when items_4_field_name = 'status' then items_4_from		
+					end as status_from
+					, case when items_0_field_name = 'status' then items_0_to_text
+						when items_1_field_name = 'status' then items_1_to_text
+						when items_2_field_name = 'status' then items_2_to_text
+						when items_3_field_name = 'status' then items_3_to_text
+						when items_4_field_name = 'status' then items_4_to_text			
+					end as status_name_to
+					, case when items_0_field_name = 'status' then items_0_to
+						when items_1_field_name = 'status' then items_1_to
+						when items_2_field_name = 'status' then items_2_to
+						when items_3_field_name = 'status' then items_3_to
+						when items_4_field_name = 'status' then items_4_to	
+					end as status_to
+				, issue_id
+				, created_date 
+				, author_id
+				, author_name
+			from jira_changelog 
+			where items_0_field_name = 'status'
+				or items_1_field_name = 'status'
+					or items_2_field_name = 'status'
+						or items_3_field_name = 'status'
+							or items_4_field_name = 'status'
 
 
 select 'map_'||lower(project_key), count(1), max(created_date)
@@ -25,8 +74,11 @@ from (
 	group by 1
 )
 
-select max(created_date)
+select project_key,  max(created_date), min(created_date)
 from jira_issues ji 
+group by 1
+
+delete from jira_issues where created_date >= '2022-01-01'
 
 select created_date, *
 from jira_ol jo 

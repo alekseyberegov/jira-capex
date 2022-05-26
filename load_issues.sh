@@ -14,9 +14,12 @@ maps=(map_arch map_bac map_creatives map_cu map_ds map_ico map_ien map_ilv map_i
 
 set -o xtrace
 
+echo "" > ~/load_issues.log
+
 for m in "${maps[@]}"
 do
     project=${m#*_}
     project=$(echo "${project}" | tr '[:lower:]' '[:upper:]')
-    ${SCRIPT_DIR}/cli.sh load --map "${m}"  "project = ${project} and created >= ${start_at}" --max-results 1 --no-save
+    ${SCRIPT_DIR}/cli.sh load --map "${m}"  "project = ${project} and created >= ${start_at}" --max-results 100000
+    echo "DONE: ${m} ${project} ${start_at}" >> ~/load_issues.log
 done

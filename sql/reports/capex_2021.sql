@@ -2,15 +2,11 @@ select emp_id
 	, emp_name
 	, task_id
 	, task_name
-	, capex_category
-	, (case when (capex_category is not null and capex_category = 'No Capitalization' ) 
-		or  task_id like 'IEN-%' 
-			or project_id like 'IEN-%' 
-				or (project_id is null and (terms_cnt > 0 or exclude_cnt > 0)) then 'Yes' else 'No' end) as is_support
+	, (case when task_id like 'IEN-%' or project_id like 'IEN-%' or (project_id is null 
+					and (terms_cnt > 0 or exclude_cnt > 0)) then 'Yes' else 'No' end) as is_support
 	, points
 	, case when points > 0 then round(-2.860678277+points*3.887259395,0) else 2 end as efforts
 	, project_id
-	, project_driver
 	, project_desc
 	, start_date
 	, end_date
@@ -29,10 +25,8 @@ from (
 			, lower(ji.summary) as task_name
 			, max(ifnull(ji.points_meas,0), ifnull(pc.max_from,0), ifnull(pc.max_to,0)  ) as points
 			, ji.points_meas as last_points
-			, ji.parent_key as project_id
-			, ji.parent_summary  as project_desc
-			, jo.capex_category 
-			, jo.project_driver 
+			, parent_key as project_id
+			, parent_summary  as project_desc
 			, case when inprogress_date is not null and inprogress_date > st.start_date then inprogress_date else start_date end as start_date
 			, case when closed_date is not null and closed_date < end_date then closed_date else end_date end as end_date  
 			, ji.created_date  
@@ -43,7 +37,6 @@ from (
 			, (select count(1) from jira_nord_terms  where instr( lower(ji.summary), term) > 0) as terms_cnt
 			, (select count(1) from jira_support_issues where ji."key" = issue_key) as exclude_cnt
 		from jira_issues ji 
-			left join jira_ol jo on (jo.id = ji.parent_id)
 			left join (
 					select issue_id
 						, min(created_date) as start_date
@@ -84,6 +77,6 @@ where status_name <> 'Won''t Do'
 		and IFNULL(resolution_name, 'Empty') <> 'Won''t Do' 
 			and IFNULL(resolution_name, 'Empty') <> 'Cannot Reproduce' 
 				and IFNULL(resolution_name, 'Empty') <> 'Duplicate'
-					and start_date between '2022-01-01' and '2022-04-30'
-						and created_date >= '2021-01-01'
+					and start_date between '2021-01-01' and '2022-01-01'
+						and created_date >= '2020-01-01'
 	
