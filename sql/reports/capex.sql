@@ -84,6 +84,6 @@ where status_name <> 'Won''t Do'
 		and IFNULL(resolution_name, 'Empty') <> 'Won''t Do' 
 			and IFNULL(resolution_name, 'Empty') <> 'Cannot Reproduce' 
 				and IFNULL(resolution_name, 'Empty') <> 'Duplicate'
-					and start_date between '2022-01-01' and '2022-04-30'
-						and created_date >= '2021-01-01'
+					and end_date >= '2022-01-01'
+						and created_date < '2022-05-01'
 	

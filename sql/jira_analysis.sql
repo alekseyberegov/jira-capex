@@ -10,6 +10,13 @@ select count(1)
 from jira_status js 
 
 
+select *
+from jira_ol jo 
+
+delete from jira_ol;
+
+
+
 
 
 INSERT into jira_status(id, status_name_from, status_from, status_name_to, status_to, issue_id, created_date , author_id, author_name )
@@ -59,6 +66,10 @@ FROM jira_issues
 WHERE "key" like 'TWR%'
 	and assignee_name = 'Noelle Laureano'
 
+	
+select *
+from jira_nord_terms jnt 
+	
 -- ===========================
 --
 -- Expected vs Actual counts
