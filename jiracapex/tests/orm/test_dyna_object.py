@@ -92,7 +92,7 @@ class TestDynaObject:
 
         dyna_obj.bind(engine).create_table()
         ids = {}
-        for id in dyna_obj.get_primary_keys('prop1_id'):
+        for id in dyna_obj.get_values('prop1_id'):
             ids[str(id)] = id
 
         assert ids['10'] == 10

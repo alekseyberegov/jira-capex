@@ -17,22 +17,21 @@ def cli(ctx, issue_id, start_at: int = 0, max_results: int = 1):
         conf: Dict = ctx.settings()
         engine = create_engine('sqlite:///' + conf['db'])
 
+        # Get all issue IDs from the issues table
         issue_obj: DynaObject = DynaObject('map_issue')
         issue_obj.bind(engine).create_table()
-        ids = []
-        for i in issue_obj.get_primary_keys():
-            ids.append(i)
+        issue_ids = []
+        for i in issue_obj.get_values():
+            issue_ids.append(i)
        
-
+        # Get all issue IDs from the changelog table 
         change_obj: DynaObject = DynaObject('map_changelog')
         change_obj.bind(engine).create_table()
         loaded_ids = {}
-        for i in change_obj.get_primary_keys(column='issue_id'):
+        for i in change_obj.get_values(column='issue_id'):
             loaded_ids[str(i)] = True
  
-        cnt:int = 0
-        for i in ids:
-            cnt += 1
+        for cnt, i in enumerate(issue_ids):
             if str(i) in loaded_ids:
                 ctx.log(f"[{cnt}] Skipping issue {i}; History is already loaded")
             else:    

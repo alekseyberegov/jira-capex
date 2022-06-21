@@ -14,6 +14,7 @@ class DynaObject:
         self.__table: str = None
         self.__engine = None
         self.__queue: List = []
+        self.__extra: Dict = {'snapshot_date': datetime.now()}
 
     @property
     def table_name(self) -> str:
@@ -28,11 +29,11 @@ class DynaObject:
         return getattr(self.__mapping, 'primary_key')
 
     @property
-    def foreign_keys(self) -> str:
+    def foreign_keys(self) -> List:
         return getattr(self.__mapping, 'foreign_keys')
 
     @property
-    def date_fields(self) -> str:
+    def date_fields(self) -> List:
         return getattr(self.__mapping, 'date_fields')
 
     @staticmethod
@@ -114,22 +115,45 @@ class DynaObject:
         self.__engine = engine
         return self
 
-    def get_primary_keys(self, column: str='id'):
+    def get_values(self, column: str='id'):
         table: Table = self.create_table()
         with self.__engine.connect() as conn:
             for row in conn.execute(select(table.c[column])):
                 yield row[column]
 
     def insert(self, obj: Dict) -> None:
-        with self.__engine.connect() as conn:
-            tran = conn.begin()
-            conn.execute(insert(self.__table), [self.cast(obj)])
-            tran.commit()
+        """
+            Inserts the given object into the table
+
+            Parameters
+            ----------
+            obj: Dict
+                the object to be inserted into the table
+        """
+        with self.__engine.connect() as dbcon:
+            trans = dbcon.begin()
+            dbcon.execute(insert(self.__table), [self.cast(obj, self.__extra)])
+            trans.commit()
 
     def add(self, obj: Dict) -> None:
-        self.__queue.append(self.cast(obj))
+        """
+            Adds the object to the 'insert' queue
+
+            Parameters
+            ----------
+            obj: Dict
+                the object to be added to the 'insert' queue
+        """
+        self.__queue.append(self.cast(obj, self.__extra))
 
     def cached(self):
+        """
+            Iterates over queued object
+
+            Returns
+            -------
+            object
+        """
         for o in self.__queue:
             yield o
 
@@ -137,10 +161,13 @@ class DynaObject:
         self.__queue.clear()
 
     def flush(self) -> None:
+        """
+            Inserts queued objects into the table
+        """
         if len(self.__queue) > 0:
-            with self.__engine.connect() as conn:
-                tran = conn.begin()
+            with self.__engine.connect() as dbcon:
+                trans = dbcon.begin()
                 for o in self.__queue:
-                    conn.execute(insert(self.__table), [o])
-                tran.commit()
+                    dbcon.execute(insert(self.__table), [o])
+                trans.commit()
                 self.__queue.clear()
