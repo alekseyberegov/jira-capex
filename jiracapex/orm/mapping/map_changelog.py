@@ -16,6 +16,7 @@ fields_map = {
     "created":                  "created_date", # Example 2019-01-08T12:40:37.081-0600
     "id":                       "id",
     "issue_id":                 "issue_id",
+    "items_len":                "items_len",
     "items_0_field":            "items_0_field_name",
     "items_0_fieldId":          "items_0_field_id",
     "items_0_fieldtype":        "items_0_field_type",

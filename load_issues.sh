@@ -10,7 +10,7 @@ SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]:-$0}"; )" &> /dev/null && 
 echo ${SCRIPT_DIR}
 start_at="$1"
 
-maps=(map_arch map_bac map_creatives map_cu map_ds map_ico map_ien map_ilv map_ind map_inf map_plat map_prd map_prod map_tower map_twr)
+maps=(map_bac map_creatives map_cu map_ds map_ico map_ien map_ilv map_ind map_inf map_plat map_prd map_prod map_tower map_twr)
 
 set -o xtrace
 

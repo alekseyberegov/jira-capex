@@ -57,6 +57,7 @@ fields_map = {
     'fields_duedate' :                                      'due_date',
     'fields_summary' :                                      'summary',
     'fields_description_type' :                             'desc_type',
+    'fields_description_content_len' :                      'content_len',
     'fields_description_content_0_type' :                   'content_type',
     'fields_description_content_0_content_0_type' :         'content_type_0_type',
     'fields_description_content_0_content_0_text' :         'content_type_0_text',

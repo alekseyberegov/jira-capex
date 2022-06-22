@@ -7,10 +7,9 @@ def flatten_json(y, delimeter='_'):
             for a in x:
                 flatten(x[a], name + a + delimeter)
         elif type(x) is list:
-            i = 0
-            for a in x:
+            out[name + 'len'] = len(x)
+            for i, a in enumerate(x):
                 flatten(a, name + str(i) + delimeter)
-                i += 1
         else:
             out[name[:-1]] = x
 

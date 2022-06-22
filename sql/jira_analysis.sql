@@ -1,22 +1,11 @@
-
-select count(1)
-from jira_issues ji 
-
+	
 
 select count(1)
 from jira_changelog jc 
 
-select count(1)
-from jira_status js 
 
-
-select *
-from jira_ol jo 
-
-delete from jira_ol;
-
-
-
+alter table jira_changelog add column items_len INTEGER;
+alter table jira_changelog add column snapshot_date DATE;
 
 
 INSERT into jira_status(id, status_name_from, status_from, status_name_to, status_to, issue_id, created_date , author_id, author_name )

@@ -3,7 +3,7 @@
 ## Available commands
 * Load issues into a database with the given project type
   ```
-  ./cli.sh load --map map_ol "project = OL" --max-results 400
+  ./cli.sh load --map map_ol "project = OL" --max-results 500
   ```
   ```
   ./cli.sh load --map map_bac  "project = BAC  and created >= 2019-01-01" --max-results 100000

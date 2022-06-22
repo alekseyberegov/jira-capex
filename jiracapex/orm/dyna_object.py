@@ -80,13 +80,17 @@ class DynaObject:
     def storage(self, metadata: MetaData) -> Table:
         if self.__table is None:
             cols = []
-            for name in self.__fields.values():
+            mapped_cols: List = list(self.__fields.values())
+            mapped_cols.extend(self.__extra.keys())
+            for name in mapped_cols:
                 if name == self.primary_key:
                     cols.append(Column(name, Integer, primary_key=True))
                 elif name in self.foreign_keys:
                     cols.append(Column(name, Integer))
                 elif name in self.date_fields:
                     cols.append(Column(name, Date))
+                elif name.endswith('_len'):
+                    cols.append(Column(name, Integer))
                 elif name.endswith('_meas'):
                     cols.append(Column(name, Float))
                 else:
