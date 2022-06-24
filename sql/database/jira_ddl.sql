@@ -128,7 +128,7 @@ CREATE TABLE jira_issues (
 	resolution_name VARCHAR(250),
 	resolution_description VARCHAR(250),
 	snapshot_date DATE,
-	ontent_len INTEGER,
+	content_len INTEGER,
 	PRIMARY KEY (id)
 );
 

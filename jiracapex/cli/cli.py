@@ -2,6 +2,7 @@ import os
 import sys
 import click
 import json
+from sqlalchemy import create_engine
 
 from jiracapex.conf.config_loader import ConfigLoader
 from jiracapex.api.jira_endpoint import Endpoint
@@ -16,12 +17,16 @@ class Environment:
         self.verbose = False
         self.home = os.getcwd()
         self.__config = (ConfigLoader("jiracapex.ini")).config()
-        
+        self.__client = self.settings()
+
     def auth(self) -> HTTPBasicAuth:
        return HTTPBasicAuth(self.__config.get('auth', 'user'), self.__config.get('auth', 'token'))
 
     def endpoint(self, name: str) -> Endpoint:
        return Endpoint(self.config('jira', name), self.auth())
+
+    def engine(self):
+        return create_engine('sqlite:///' + self.__client['db'])
 
     def config(self, section: str, option: str) -> str:
         return self.__config.get(section, option)

@@ -1,20 +1,3 @@
-create table jira_issue_lifecycle (
-	issue_id				INTEGER NOT NULL,
-	issue_key				VARCHAR(250),
-	status_name				VARCHAR(250),
-	resolution_name			VARCHAR(250),
-	status_log				VARCHAR(4000),
-	issue_created			DATE,
-	issue_updated			DATE,
-	status_updated			DATE,
-	resolution_created		DATE,
-	issue_started			DATE,
-	issue_completed			DATE,
-	work_started			DATE,
-	work_ended				DATE,
-	PRIMARY KEY (issue_id)
-);
-	
 
 select *
 	, round(cast(cnt as float) / cnt_total, 2) as sov
@@ -132,7 +115,7 @@ from (
 		,  COALESCE(work_ended, issue_completed) as end_date
 		, ji.*
 	from jira_issue_lifecycle  ji
-)
+) d
 order by 1 desc
 
 select status_name_to, 1, count(1)
