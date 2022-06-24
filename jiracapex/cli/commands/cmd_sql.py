@@ -17,5 +17,6 @@ def cli(ctx: Environment, sqlfile, param):
 
     report = Report(ctx.engine())
     report.run(sql_query, sql_params)
-
-    print (report.df)
+    
+    print(report.df.dtypes)
+    print(report.df)
