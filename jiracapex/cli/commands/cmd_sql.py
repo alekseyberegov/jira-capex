@@ -1,6 +1,6 @@
 import click
 from jiracapex.cli.cli import pass_environment, Environment
-from jiracapex.reporting.report import Report
+from jiracapex.reporting.tools import ReportRunner
 
 @click.command("sql", short_help="run SQL script")
 @click.argument("sqlfile", type=click.Path(exists=True))
@@ -15,8 +15,8 @@ def cli(ctx: Environment, sqlfile, param):
     with open(sqlfile, 'r') as reader:
         sql_query = reader.read()
 
-    report = Report(ctx.engine())
+    report = ReportRunner(ctx.engine())
     report.run(sql_query, sql_params)
-    
+
     print(report.df.dtypes)
     print(report.df)

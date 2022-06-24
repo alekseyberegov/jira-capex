@@ -2,7 +2,7 @@ import pandas as pd
 from typing import Dict
 from jiracapex.utils.template import render_template
 
-class Report:
+class ReportRunner:
     def __init__(self, engine) -> None:
         self.__engine = engine
 
