@@ -35,6 +35,11 @@
   ./cli.sh changelog all --max-results 100
   ```
 
+## Reporting
+* Run SQL queries
+  ```
+  $ ./cli.sh sql ./sql/queries/issue_lifecycle.sql
+  ```
 ## JQL examples
 * Issues worked on during specific dates
   ```

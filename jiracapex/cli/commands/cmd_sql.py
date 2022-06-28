@@ -5,8 +5,9 @@ from jiracapex.reporting.tools import ReportRunner
 @click.command("sql", short_help="run SQL script")
 @click.argument("sqlfile", type=click.Path(exists=True))
 @click.option('--param',  multiple=True, type=(str, str))
+@click.option('--csv', type=click.Path(dir_okay=True), required=False, default=None)
 @pass_environment
-def cli(ctx: Environment, sqlfile, param):
+def cli(ctx: Environment, sqlfile, param, csv):
     sql_params = {}
     if param is not None:
         for name, value in param:
@@ -18,5 +19,9 @@ def cli(ctx: Environment, sqlfile, param):
     report = ReportRunner(ctx.engine())
     report.run(sql_query, sql_params)
 
-    print(report.df.dtypes)
     print(report.df)
+
+    if csv is not None:
+        report.df.to_csv(csv, sep=',', encoding='utf-8', index=False)
+
+
