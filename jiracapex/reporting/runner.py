@@ -26,7 +26,14 @@ class ReportRunner:
             for m in rep['derive']:
                 df[m['name']] = m['func'](df)
         # subselect columns
-        self.__df = df[rep['schema'].keys()]
+        df = df[rep['schema'].keys()]
+        # split columns
+        if 'split' in rep:
+            for col in rep['split']:
+                df = pd.concat([df.drop([col], axis=1), df[col].apply(pd.Series)], axis=1)
+        # sort columns
+        df = df.reindex(sorted(df.columns), axis=1)
+        self.__df = df
 
     def run_query(self, sql: str, params: Dict):
         prepared_sql = render_template(sql, params)

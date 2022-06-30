@@ -6,5 +6,5 @@ from (
 	from jira_issue_lifecycle  ji
 ) d
 order by 1 desc
-limit 100
+limit 20
 

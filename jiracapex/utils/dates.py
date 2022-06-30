@@ -1,5 +1,5 @@
 import datetime
-from typing import List
+from typing import List, Dict
 
 def last_day_of_month(any_day: datetime) -> datetime:
     # get close to the end of the month for any day, and add 4 days 'over'
@@ -9,7 +9,28 @@ def last_day_of_month(any_day: datetime) -> datetime:
     return next_month - datetime.timedelta(days=next_month.day)
 
 def list_months(beg_date: datetime.date, end_date: datetime.date) -> List:
-    months = []
+    def list_agg(l: List = None, period: List = None) -> list:
+        if l is None:
+            return []
+        l.append(period)
+        return l
+
+    return split_into_months(beg_date, end_date, list_agg)
+
+def dict_months(prefix: str, beg_date: datetime.date, end_date: datetime.date) -> Dict:
+    def dict_agg(d: Dict = None, period: List = None) -> Dict:
+        if d is None:
+            return {}
+        i: str = str(len(d) // 3)
+        d[prefix + 'beg_' + i] = period[0]
+        d[prefix + 'end_' + i] = period[1]
+        d[prefix + period[0].strftime('%Y-%m')] = (period[1] - period[0]).days
+        return d
+
+    return split_into_months(beg_date, end_date, dict_agg) 
+
+def split_into_months(beg_date: datetime.date, end_date: datetime.date, func):
+    months = func()
     cur_date: datetime.date = beg_date
     while True:
         next_month = cur_date.replace(
@@ -18,9 +39,8 @@ def list_months(beg_date: datetime.date, end_date: datetime.date) -> List:
                 day=1)
         if next_month > end_date:
             break
-        months.append([cur_date, last_day_of_month(cur_date)])
+        months = func(months, [cur_date, last_day_of_month(cur_date)])
         cur_date = next_month
 
-    months.append([cur_date, end_date])
+    months = func(months, [cur_date, end_date])
     return months
-
