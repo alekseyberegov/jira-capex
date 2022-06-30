@@ -1,6 +1,6 @@
 import click
 from jiracapex.cli.cli import pass_environment, Environment
-from jiracapex.reporting.tools import ReportRunner
+from jiracapex.reporting.runner import ReportRunner
 
 @click.command("sql", short_help="run SQL script")
 @click.argument("sqlfile", type=click.Path(exists=True))

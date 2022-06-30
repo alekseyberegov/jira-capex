@@ -1,4 +1,4 @@
-from jiracapex.reporting.tools import ReportContext
+from jiracapex.reporting.context import ReportContext
 
 # -Ignore / do not count efforts for tickets containing "ARCH", otherwise
 # -If Column "Is Support" = Yes, then count task efforts as "Not Classified to CapEx Category", otherwise
@@ -17,4 +17,4 @@ __rep_config = {
 }
 
 def init_report(context: ReportContext):
-    return __rep_config
+    return context.process(__rep_config)
