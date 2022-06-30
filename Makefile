@@ -10,3 +10,10 @@ help:
 .PHONY: dev.install
 dev.install:  ## Install local code as the package
 	pip install -e .
+
+clean:  ## Clean the distro directory
+	rm -rf dist/*
+
+setup:  ## Setup the environment
+	mkdir -p dist
+	mkdir -p build

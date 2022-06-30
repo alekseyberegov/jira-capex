@@ -17,7 +17,7 @@ def cli(ctx: Environment, sqlfile, param, csv):
         sql_query = reader.read()
 
     report = ReportRunner(ctx.engine())
-    report.run(sql_query, sql_params)
+    report.run_query(sql_query, sql_params)
 
     print(report.df)
 
