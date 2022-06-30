@@ -1,4 +1,3 @@
-import datetime
 import pandas as pd
 from jiracapex.reporting.context import ReportContext
 from jiracapex.utils.dates import dict_months
@@ -12,34 +11,36 @@ from jiracapex.utils.dates import dict_months
 # -Also, report any tasks for which columns T through AI are all empty (and "Is Support" =NO), 
 #   or columns U through AI sum to more than 1. 
 
-def calc_months(df):
+def calc_timeline(df):
     return df.apply(lambda r: dict_months('vv_'
-                ,   pd.to_datetime(r.start_date).date()
-                ,   pd.to_datetime(r.end_date  ).date()), axis=1)
+                ,   pd.to_datetime(r.beg_date).date()
+                ,   pd.to_datetime(r.end_date).date()), axis=1)
 
 __rep_config = {
-    'query'  : '${project_home}/sql/queries/issue_lifecycle.sql',
+    'report' : 'issue_timeline',
+    'query'  : '${project_home}/sql/queries/issue_timeline.sql',
     'derive' : [
         {
-            'name': 'months',
-            'func': calc_months
+            'name': 'timeline',
+            'calc': calc_timeline
         }
     ],
     'schema' : {
-        'months'     : 'int',
+        'timeline'   : 'int',
         'duration'   : 'int',
-        'start_date' : 'date',
+        'beg_date'   : 'date',
         'end_date'   : 'date',
         'issue_id'   : 'int',
         'issue_key'  : 'str',
     },
     'split' : [
-        'months'
+        'timeline'
     ],
     'column': {'sorted': True},
-    'output': '${project_home}/dist/capex_alloc.csv',
+    'output': 'file',
+    'folder': '${project_home}/dist/',
     'format': 'csv' 
 }
 
-def init_report(context: ReportContext):
+def __init__(context: ReportContext):
     return context.process(__rep_config)

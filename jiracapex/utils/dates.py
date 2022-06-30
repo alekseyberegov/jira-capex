@@ -22,8 +22,8 @@ def dict_months(prefix: str, beg_date: datetime.date, end_date: datetime.date) -
         if d is None:
             return {}
         i: str = str(len(d) // 3)
-        d[prefix + 'beg_' + i] = period[0]
-        d[prefix + 'end_' + i] = period[1]
+        d[prefix + i + '_beg'] = period[0]
+        d[prefix + i + '_end'] = period[1]
         d[prefix + period[0].strftime('%Y-%m')] = (period[1] - period[0]).days
         return d
 

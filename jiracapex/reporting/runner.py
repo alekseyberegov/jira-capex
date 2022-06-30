@@ -9,7 +9,7 @@ class ReportRunner:
 
     def get_report(self, name: str, context: ReportContext):
         mod = __import__(f"jiracapex.reporting.catalog.{name}", None, None, ["init_report"])
-        return mod.init_report(context)
+        return mod.__init__(context)
 
     def run_report(self, name: str, context: ReportContext):
         # load the report with the given name
@@ -24,7 +24,7 @@ class ReportRunner:
         # calculate derived values
         if 'derive' in rep:
             for m in rep['derive']:
-                df[m['name']] = m['func'](df)
+                df[m['name']] = m['calc'](df)
         # subselect columns
         df = df[rep['schema'].keys()]
         # split columns
