@@ -18,15 +18,19 @@ class ReportContext:
     def process(self, report: Dict) -> Dict:
         return self.replace_vars(dict(report))
 
-    def replace_vars(self, o: Dict) -> Dict:
-        for n,v in o.items():
-            if type(v) is str:
-                o[n] = render_template(v, self.__variables)
-            elif type(v) is dict:
-                self.replace_vars(v)
-            elif type(v) is list:
-                l = []
-                for i in v:
-                    l.append(render_template(i, self.__variables))
-                o[n] = l
+    def replace_vars(self, o: Any) -> Dict:
+        if type(o) is str:
+            return render_template(o, self.__variables)
+
+        if type(o) is dict:
+            for n,v in o.items():
+                o[n] = self.replace_vars(v)
+            return o
+
+        if type(o) is list:
+            l = []
+            for v in o:
+                l.append(self.replace_vars(v))
+            return l
+
         return o

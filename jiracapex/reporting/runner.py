@@ -20,15 +20,21 @@ class ReportRunner:
         # prepare sql by replacing macros with arguments
         sql = context.prepare_sql(query)
         # run sql and load results in the dataframe
-        self.___df = pd.read_sql(sql, con=self.__engine) 
+        df = pd.read_sql(sql, con=self.__engine) 
+        # calculate derived values
+        if 'derive' in rep:
+            for m in rep['derive']:
+                df[m['name']] = m['func'](df)
+        # subselect columns
+        self.__df = df[rep['schema'].keys()]
 
     def run_query(self, sql: str, params: Dict):
         prepared_sql = render_template(sql, params)
-        self.___df = pd.read_sql(
+        self.__df = pd.read_sql(
             prepared_sql,
             con=self.__engine
         )
         
     @property
     def df(self):
-        return self.___df
+        return self.__df

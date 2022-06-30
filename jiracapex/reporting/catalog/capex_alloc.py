@@ -10,8 +10,21 @@ from jiracapex.reporting.context import ReportContext
 #   or columns U through AI sum to more than 1. 
 
 __rep_config = {
-    'name'  : 'capex_alloc',
-    'query' : '${project_home}/sql/queries/issue_lifecycle.sql',
+    'query'  : '${project_home}/sql/queries/issue_lifecycle.sql',
+    'derive' : [
+        {
+            'name': 'months',
+            'func': lambda df: df.duration // 30
+        }
+    ],
+    'schema' : {
+        'months'     : 'int',
+        'duration'   : 'int',
+        'start_date' : 'date',
+        'end_date'   : 'date',
+        'issue_id'   : 'int',
+        'issue_key'  : 'str',
+    },
     'output': '${project_home}/dist/capex_alloc.csv',
     'format': 'csv' 
 }
