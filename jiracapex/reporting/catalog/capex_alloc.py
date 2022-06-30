@@ -13,7 +13,7 @@ __rep_config = {
     'name'  : 'capex_alloc',
     'query' : '${project_home}/sql/queries/issue_lifecycle.sql',
     'output': '${project_home}/dist/capex_alloc.csv',
-    'format': 'csv'
+    'format': 'csv' 
 }
 
 def init_report(context: ReportContext):

@@ -4,7 +4,8 @@ from jiracapex.utils.template import render_template
 
 class ReportContext:
     def __init__(self) -> None:
-        pass
+        self.__variables = {}
+        self.__arguments = {}
 
 
 def load_report(name: str, context: ReportContext):
