@@ -11,6 +11,17 @@ class ReportRunner:
         mod = __import__(f"jiracapex.reporting.catalog.{name}", None, None, ["init_report"])
         return mod.init_report(context)
 
+    def run_report(self, name: str, context: ReportContext):
+        # load the report with the given name
+        rep = self.get_report(name, context)
+        # read sql query
+        with open(rep['query'], 'r') as reader:
+            query = reader.read()
+        # prepare sql by replacing macros with arguments
+        sql = context.prepare_sql(query)
+        # run sql and load results in the dataframe
+        self.___df = pd.read_sql(sql, con=self.__engine) 
+
     def run_query(self, sql: str, params: Dict):
         prepared_sql = render_template(sql, params)
         self.___df = pd.read_sql(
