@@ -1,38 +1,86 @@
 import pandas as pd
+from pandas import DataFrame
+from abc import ABC, abstractmethod
 from typing import Dict
 from jiracapex.utils.template import render_template
 from jiracapex.reporting.context import ReportContext
+
+class ReportTarget(ABC):
+    @abstractmethod
+    def save(self, df: DataFrame, output, **kwargs) -> None:
+        pass
+
+class TableTarget(ReportTarget):
+    def save(self, df: DataFrame, output, **kwargs) -> None:
+        pass
+
+class FileTarget(ReportTarget):
+    def save(self, df: DataFrame, output, **kwargs) -> None:
+        pass
+
+REPORT_TARGETS = {
+    'table': TableTarget(),
+     'file':  FileTarget()
+}
+
+class Report:
+    def __init__(self, config: Dict) -> None:
+        self.__config = config
+
+    def __getitem__(self, key):
+        return self.__config[key]
+
+    def __contains__(self, key):
+        return key in self.__config
+
+    def sql(self, context: ReportContext) -> str:
+        with open(self['query'], 'r') as inp: sql = inp.read()
+        return context.prepare_sql(sql)
+
+    def derive(self, df: DataFrame) -> DataFrame:
+        if 'derive' in self:
+            for m in self['derive']:
+                df[m['name']] = m['calc'](df)
+        return df
+
+    def select(self, df: DataFrame) -> DataFrame:
+        return df[self['schema'].keys()]
+
+    def split(self, df: DataFrame) -> DataFrame:
+        if 'split' in self:
+            for col in self['split']:
+                df = pd.concat([df.drop([col], axis=1), df[col].apply(pd.Series)], axis=1)
+        return df
+
+    def save(self, df: DataFrame):
+        if 'target' in self:
+            params: Dict = self['target']
+            target: ReportTarget = REPORT_TARGETS.get(params['type'])
+            target.save(df, params['output'], **params['options'])
 
 class ReportRunner:
     def __init__(self, engine) -> None:
         self.__engine = engine
 
-    def get_report(self, name: str, context: ReportContext):
+    def get_report(self, name: str, context: ReportContext) -> Report:
         mod = __import__(f"jiracapex.reporting.catalog.{name}", None, None, ["init_report"])
-        return mod.__init__(context)
+        return Report(mod.__init__(context))
 
     def run_report(self, name: str, context: ReportContext):
-        # load the report with the given name
-        rep = self.get_report(name, context)
-        # read sql query
-        with open(rep['query'], 'r') as reader:
-            query = reader.read()
-        # prepare sql by replacing macros with arguments
-        sql = context.prepare_sql(query)
-        # run sql and load results in the dataframe
-        df = pd.read_sql(sql, con=self.__engine) 
+        rpt: Report = self.get_report(name, context)
+        # run report SQL
+        df = pd.read_sql(rpt.sql(context), con=self.__engine) 
         # calculate derived values
-        if 'derive' in rep:
-            for m in rep['derive']:
-                df[m['name']] = m['calc'](df)
+        df = rpt.derive(df)
         # subselect columns
-        df = df[rep['schema'].keys()]
+        df = rpt.select(df)
         # split columns
-        if 'split' in rep:
-            for col in rep['split']:
-                df = pd.concat([df.drop([col], axis=1), df[col].apply(pd.Series)], axis=1)
+        df = rpt.split(df)
         # sort columns
         df = df.reindex(sorted(df.columns), axis=1)
+        # generate output
+        rpt.save(df)
+        # keep dataframe
         self.__df = df
 
     def run_query(self, sql: str, params: Dict):

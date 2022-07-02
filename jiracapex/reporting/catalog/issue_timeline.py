@@ -2,14 +2,14 @@ import pandas as pd
 from jiracapex.reporting.context import ReportContext
 from jiracapex.utils.dates import dict_months
 
-# -Ignore / do not count efforts for tickets containing "ARCH", otherwise
-# -If Column "Is Support" = Yes, then count task efforts as "Not Classified to CapEx Category", otherwise
-# -If Column "Not Classified to CapEx Category" = 1, then count task efforts as "Not Classified to CapEx Category", otherwise
-# -If any Column in U to AH =1, then count task efforts in that respective CapEx category, otherwise
-# -Count task efforts in the category labeled in Column T
-# -Also, report any tasks for which columns T through AI are all empty, or columns U through AI sum to more than 1. 
-# -Also, report any tasks for which columns T through AI are all empty (and "Is Support" =NO), 
-#   or columns U through AI sum to more than 1. 
+# - Ignore / do not count efforts for tickets containing "ARCH", otherwise
+# - If Column "Is Support" = Yes, then count task efforts as "Not Classified to CapEx Category", otherwise
+# - If Column "Not Classified to CapEx Category" = 1, then count task efforts as "Not Classified to CapEx Category", otherwise
+# - If any Column in U to AH =1, then count task efforts in that respective CapEx category, otherwise
+# - Count task efforts in the category labeled in Column T
+# - Also, report any tasks for which columns T through AI are all empty, or columns U through AI sum to more than 1. 
+# - Also, report any tasks for which columns T through AI are all empty (and "Is Support" =NO), 
+#       or columns U through AI sum to more than 1. 
 
 def calc_timeline(df):
     return df.apply(lambda r: dict_months('vv_'
@@ -26,20 +26,18 @@ __rep_config = {
         }
     ],
     'schema' : {
-        'timeline'   : 'int',
-        'duration'   : 'int',
-        'beg_date'   : 'date',
-        'end_date'   : 'date',
-        'issue_id'   : 'int',
-        'issue_key'  : 'str',
+        'timeline' : 'int',
+        'duration' : 'int',
+        'beg_date' : 'date',
+        'end_date' : 'date',
+        'issue_id' : 'int',
+        'issue_key': 'str',
     },
     'split' : [
         'timeline'
     ],
-    'column': {'sorted': True},
-    'output': 'file',
-    'folder': '${project_home}/dist/',
-    'format': 'csv' 
+    'column': {'sort': True},
+    'target': {'type': 'table', 'output': 'jira_timeline', 'options': {}}
 }
 
 def __init__(context: ReportContext):

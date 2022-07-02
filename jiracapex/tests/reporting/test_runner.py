@@ -1,5 +1,5 @@
 import pytest
-from jiracapex.reporting.runner import ReportRunner
+from jiracapex.reporting.runner import ReportRunner, Report
 from jiracapex.reporting.context import ReportContext
 from sqlalchemy import create_engine
 
@@ -19,6 +19,6 @@ def runner(engine) -> ReportRunner:
     return runner
 
 def test_get_report(context: ReportContext, runner: ReportRunner):
-    rep = runner.get_report('capex_alloc', context)
-    assert rep is not None
-    assert rep['query'] == 'alex/sql/queries/issue_lifecycle.sql'
+    rpt = runner.get_report('issue_timeline', context)
+    assert rpt is not None
+    assert rpt['query'] == 'alex/sql/queries/issue_timeline.sql'
