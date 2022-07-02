@@ -7,20 +7,25 @@ from jiracapex.reporting.context import ReportContext
 
 class ReportTarget(ABC):
     @abstractmethod
-    def save(self, df: DataFrame, output, **kwargs) -> None:
+    def save(self, df: DataFrame, output, engine, **kwargs) -> None:
         pass
 
-class TableTarget(ReportTarget):
-    def save(self, df: DataFrame, output, **kwargs) -> None:
-        pass
+class DbmsTarget(ReportTarget):
+    def save(self, df: DataFrame, output, engine, **kwargs) -> None:
+        df.to_sql(name=output, con=engine, if_exists='replace')
 
 class FileTarget(ReportTarget):
-    def save(self, df: DataFrame, output, **kwargs) -> None:
+    def save(self, df: DataFrame, output, engine, **kwargs) -> None:
+        pass
+
+class NullTarget(ReportTarget):
+    def save(self, df: DataFrame, output, engine, **kwargs) -> None:
         pass
 
 REPORT_TARGETS = {
-    'table': TableTarget(),
-     'file':  FileTarget()
+    'dbms': DbmsTarget(),
+    'file': FileTarget(),
+    'null': NullTarget()
 }
 
 class Report:
@@ -52,11 +57,11 @@ class Report:
                 df = pd.concat([df.drop([col], axis=1), df[col].apply(pd.Series)], axis=1)
         return df
 
-    def save(self, df: DataFrame):
+    def save(self, df: DataFrame, engine):
         if 'target' in self:
             params: Dict = self['target']
             target: ReportTarget = REPORT_TARGETS.get(params['type'])
-            target.save(df, params['output'], **params['options'])
+            target.save(df, params['output'], engine, **params['options'])
 
 class ReportRunner:
     def __init__(self, engine) -> None:
@@ -79,7 +84,7 @@ class ReportRunner:
         # sort columns
         df = df.reindex(sorted(df.columns), axis=1)
         # generate output
-        rpt.save(df)
+        rpt.save(df, self.__engine)
         # keep dataframe
         self.__df = df
 
