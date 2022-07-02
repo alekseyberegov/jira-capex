@@ -40,7 +40,7 @@ class Report:
 
     def sql(self, context: ReportContext) -> str:
         with open(self['query'], 'r') as inp: sql = inp.read()
-        return context.prepare_sql(sql)
+        return context.replace_str(sql)
 
     def derive(self, df: DataFrame) -> DataFrame:
         if 'derive' in self:

@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 @pytest.fixture
 def context() -> ReportContext:
     context = ReportContext()
-    context.set_var('project_home', 'alex')
+    context['project_home'] = 'alex'
     return context
 
 @pytest.fixture

@@ -9,11 +9,11 @@ from jiracapex.reporting.runner import ReportContext
 @pass_environment
 def cli(ctx: Environment, name, param):
     context: ReportContext = ReportContext()
+    context['project_home'] = ctx.home
     if param is not None:
         for n, v in param:
-            context.set_arg(n, v)
+            context[n] = v
 
-    context.set_var('project_home', ctx.home)
     report = ReportRunner(ctx.engine())
     report.run_report(name, context)
 

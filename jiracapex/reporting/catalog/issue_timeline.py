@@ -41,4 +41,4 @@ __rep_config = {
 }
 
 def __init__(context: ReportContext):
-    return context.process(__rep_config)
+    return context.replace_obj(__rep_config)

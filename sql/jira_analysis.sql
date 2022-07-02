@@ -13,6 +13,12 @@ from (
 	order by 1
 )
 
+select * from jira_timeline
+
+drop table jira_timeline
+
+select DATE('2022-10-02','+1 year')
+
 WITH RECURSIVE dates(x) AS ( 
             SELECT '2015-01-01' 
                 UNION ALL 
