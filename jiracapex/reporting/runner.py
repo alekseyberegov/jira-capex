@@ -81,6 +81,9 @@ class Report:
     def colsort(self, df: DataFrame) -> DataFrame:
         return df.reindex(sorted(df.columns), axis=1)
 
+    def index(self, df: DataFrame) -> DataFrame:
+        return df.set_index(self['index'])
+
     def target(self) -> ReportTarget:
         cfg: Dict = self.__config.get('target', Report.__NULL_TARGET)
         tgt: ReportTarget = Report.make_target(cfg['type'])
@@ -100,7 +103,7 @@ class ReportRunner:
         # run report SQL
         df = pd.read_sql(rp.sql(context), con=self.__engine) 
         # process the report
-        for m in [rp.derive, rp.select, rp.split, rp.colsort]:
+        for m in [rp.derive, rp.select, rp.split, rp.colsort, rp.index]:
             df = m(df)
         # save report
         rp.target().save(self.__engine, df)

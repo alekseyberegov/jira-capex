@@ -19,6 +19,7 @@ def calc_timeline(df):
 __rep_config = {
     'report' : 'issue_timeline',
     'query'  : '${project_home}/sql/queries/issue_timeline.sql',
+    'index'  : 'issue_id',
     'derive' : [
         {
             'name': 'timeline',
