@@ -22,7 +22,10 @@ def dict_months(prefix: str, beg_date: datetime.date, end_date: datetime.date) -
         if d is None:
             return {}
         d[prefix + period[0].strftime('%Y_%m') + '_n'] = (period[1] - period[0]).days + 1
-        d[prefix + period[0].strftime('%Y_%m') + '_d'] = '[' + period[0].strftime('%Y-%m-%d') + ',' + period[1].strftime('%Y-%m-%d') + ']' 
+        d[prefix + period[0].strftime('%Y_%m') + '_d'] = ''.join(['[',
+            period[0].strftime('%Y-%m-%d'), ',', 
+            period[1].strftime('%Y-%m-%d'), ']'
+        ])
         return d
 
     return split_into_months(beg_date, end_date, dict_agg) 
