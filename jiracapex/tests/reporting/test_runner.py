@@ -6,7 +6,8 @@ from sqlalchemy import create_engine
 @pytest.fixture
 def context() -> ReportContext:
     context = ReportContext()
-    context['project_home'] = 'alex'
+    context['project_home'] = 'jira-capex'
+    context['crunch_date' ] = '2020-06-06'
     return context
 
 @pytest.fixture
@@ -21,4 +22,4 @@ def runner(engine) -> ReportRunner:
 def test_get_report(context: ReportContext, runner: ReportRunner):
     rpt = runner.get_report('issue_timeline', context)
     assert rpt is not None
-    assert rpt['query'] == 'alex/sql/queries/issue_timeline.sql'
+    assert rpt['query'] == 'jira-capex/sql/queries/issue_timeline.sql'

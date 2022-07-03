@@ -78,7 +78,14 @@ def test_list_months_end_of_month_next_month() -> None:
     assert months[0][1] ==  __d('2022-02-28')
     assert months[1][0] ==  __d('2022-03-01')
     assert months[1][1] ==  __d('2022-03-31')
-  
+
+
+def test_list_month_multi_year() -> None:
+    beg_date: datetime.date = __d('2019-07-23')
+    end_date: datetime.date = __d('2020-04-09')
+    months: List = list_months(beg_date, end_date)
+    assert len(months) == 10
+
 
 
 
