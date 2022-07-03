@@ -1,34 +1,55 @@
 import pandas as pd
 from pandas import DataFrame
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Dict, Any
 from jiracapex.utils.template import render_template
 from jiracapex.reporting.context import ReportContext
 
 class ReportTarget(ABC):
+    abstractmethod
+    def configure(self, output, **kwargs) -> None:
+        pass
+
     @abstractmethod
-    def save(self, df: DataFrame, output, engine, **kwargs) -> None:
+    def save(self, driver: Any, df: DataFrame) -> None:
         pass
 
 class DbmsTarget(ReportTarget):
-    def save(self, df: DataFrame, output, engine, **kwargs) -> None:
-        df.to_sql(name=output, con=engine, if_exists='replace')
+    def configure(self, output, **kwargs) -> None:
+        self.__output = output
+        self.__params = dict(kwargs)
+
+    def save(self, driver: Any, df: DataFrame) -> None:
+        df.to_sql(name=self.__output, con=driver, if_exists='replace')
 
 class FileTarget(ReportTarget):
-    def save(self, df: DataFrame, output, engine, **kwargs) -> None:
+    def configure(self, output, **kwargs) -> None:
+        pass
+
+    def save(self, driver: Any, df: DataFrame) -> None:
         pass
 
 class NullTarget(ReportTarget):
-    def save(self, df: DataFrame, output, engine, **kwargs) -> None:
+    def configure(self, output, **kwargs) -> None:
         pass
 
-REPORT_TARGETS = {
-    'dbms': DbmsTarget(),
-    'file': FileTarget(),
-    'null': NullTarget()
-}
+    def save(self, driver: Any, df: DataFrame) -> None:
+        pass
+
 
 class Report:
+    __NULL_TARGET: Dict = {'type': None, 'output': None, 'options': {}}
+
+    __TARGET_FACTORY = {
+        'dbms': DbmsTarget,
+        'file': FileTarget,
+         None : NullTarget
+    }
+
+    @classmethod
+    def make_target(cls, key: str) -> ReportTarget:
+        return Report.__TARGET_FACTORY[key]()
+    
     def __init__(self, config: Dict) -> None:
         self.__config = config
 
@@ -57,11 +78,14 @@ class Report:
                 df = pd.concat([df.drop([col], axis=1), df[col].apply(pd.Series)], axis=1)
         return df
 
-    def save(self, df: DataFrame, engine):
-        if 'target' in self:
-            params: Dict = self['target']
-            target: ReportTarget = REPORT_TARGETS.get(params['type'])
-            target.save(df, params['output'], engine, **params['options'])
+    def colsort(self, df: DataFrame) -> DataFrame:
+        return df.reindex(sorted(df.columns), axis=1)
+
+    def target(self) -> ReportTarget:
+        cfg: Dict = self.__config.get('target', Report.__NULL_TARGET)
+        tgt: ReportTarget = Report.make_target(cfg['type'])
+        tgt.configure(cfg['output'], **cfg['options'])
+        return tgt
 
 class ReportRunner:
     def __init__(self, engine) -> None:
@@ -72,20 +96,15 @@ class ReportRunner:
         return Report(mod.__init__(context))
 
     def run_report(self, name: str, context: ReportContext):
-        rpt: Report = self.get_report(name, context)
+        rp: Report = self.get_report(name, context)
         # run report SQL
-        df = pd.read_sql(rpt.sql(context), con=self.__engine) 
-        # calculate derived values
-        df = rpt.derive(df)
-        # subselect columns
-        df = rpt.select(df)
-        # split columns
-        df = rpt.split(df)
-        # sort columns
-        df = df.reindex(sorted(df.columns), axis=1)
-        # generate output
-        rpt.save(df, self.__engine)
-        # keep dataframe
+        df = pd.read_sql(rp.sql(context), con=self.__engine) 
+        # process the report
+        for m in [rp.derive, rp.select, rp.split, rp.colsort]:
+            df = m(df)
+        # save report
+        rp.target().save(self.__engine, df)
+        # keep the dataframe
         self.__df = df
 
     def run_query(self, sql: str, params: Dict):

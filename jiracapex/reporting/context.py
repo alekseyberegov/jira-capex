@@ -1,12 +1,26 @@
+import re
 from typing import Any, Dict
 from jiracapex.utils.template import render_template
+
+def norm(s:str) -> str:
+    return re.sub("[^0-9a-zA-Z_]+", "_", s)
 
 class ReportContext:
     def __init__(self) -> None:
         self.__variables: Dict[str,str] = {}
 
     def __getitem__(self, key):
-        return self.__variables[key]
+        fun = None
+        if key.startswith('__func_'):
+            match = re.search(r"__func_(\w+):(\w+)", key)
+            if match:
+                fun = globals()[match.group(1)]
+                key = match.group(2)
+
+        value = self.__variables[key]
+        if fun is not None:
+            value = fun(value)
+        return value
 
     def __setitem__(self, key, newvalue):
         self.__variables[key] = newvalue

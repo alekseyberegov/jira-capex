@@ -37,7 +37,7 @@ __rep_config = {
         'timeline'
     ],
     'column': {'sort': True},
-    'target': {'type': 'dbms', 'output': 'jira_timeline', 'options': {}}
+    'target': {'type': 'dbms', 'output': 'jira_timeline_${__func_norm:crunch_date}', 'options': {}}
 }
 
 def __init__(context: ReportContext):
