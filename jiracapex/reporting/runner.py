@@ -1,41 +1,9 @@
 import pandas as pd
 from pandas import DataFrame
-from abc import ABC, abstractmethod
 from typing import Dict, Any
 from jiracapex.utils.template import render_template
 from jiracapex.reporting.context import ReportContext
-
-class ReportTarget(ABC):
-    abstractmethod
-    def configure(self, output, **kwargs) -> None:
-        pass
-
-    @abstractmethod
-    def save(self, driver: Any, df: DataFrame) -> None:
-        pass
-
-class DbmsTarget(ReportTarget):
-    def configure(self, output, **kwargs) -> None:
-        self.__output = output
-        self.__params = dict(kwargs)
-
-    def save(self, driver: Any, df: DataFrame) -> None:
-        df.to_sql(name=self.__output, con=driver, if_exists='replace')
-
-class FileTarget(ReportTarget):
-    def configure(self, output, **kwargs) -> None:
-        pass
-
-    def save(self, driver: Any, df: DataFrame) -> None:
-        pass
-
-class NullTarget(ReportTarget):
-    def configure(self, output, **kwargs) -> None:
-        pass
-
-    def save(self, driver: Any, df: DataFrame) -> None:
-        pass
-
+from jiracapex.reporting.target import DbmsTarget, FileTarget, NullTarget, ReportTarget
 
 class Report:
     __NULL_TARGET: Dict = {'type': None, 'output': None, 'options': {}}
@@ -47,8 +15,15 @@ class Report:
     }
 
     @classmethod
-    def make_target(cls, key: str) -> ReportTarget:
-        return Report.__TARGET_FACTORY[key]()
+    def make_target(cls, key: str, output: str, **kwargs) -> ReportTarget:
+        target: ReportTarget = Report.__TARGET_FACTORY[key]()
+        target.configure(output, **kwargs)
+        return target
+
+    @classmethod
+    def new_instance(cls, name: str, context: ReportContext) -> 'Report':
+        mod = __import__(f"jiracapex.reporting.catalog.{name}", None, None, ["init_report"])
+        return Report(mod.__init__(context))
     
     def __init__(self, config: Dict) -> None:
         self.__config = config
@@ -84,21 +59,19 @@ class Report:
     def index(self, df: DataFrame) -> DataFrame:
         return df.set_index(self['index'])
 
+    @property
     def target(self) -> ReportTarget:
-        cfg: Dict = self.__config.get('target', Report.__NULL_TARGET)
-        tgt: ReportTarget = Report.make_target(cfg['type'])
-        tgt.configure(cfg['output'], **cfg['options'])
-        return tgt
+        params: Dict = self.__config.get('target', Report.__NULL_TARGET)
+        return Report.make_target(params['type'], params['output'], **params['options'])
 
 class ReportRunner:
     def __init__(self, engine) -> None:
         self.__engine = engine
 
     def get_report(self, name: str, context: ReportContext) -> Report:
-        mod = __import__(f"jiracapex.reporting.catalog.{name}", None, None, ["init_report"])
-        return Report(mod.__init__(context))
+        return Report.new_instance(name, context)
 
-    def run_report(self, name: str, context: ReportContext):
+    def run_report(self, name: str, context: ReportContext) -> DataFrame:
         rp: Report = self.get_report(name, context)
         # run report SQL
         df = pd.read_sql(rp.sql(context), con=self.__engine) 
@@ -106,17 +79,8 @@ class ReportRunner:
         for m in [rp.derive, rp.select, rp.split, rp.colsort, rp.index]:
             df = m(df)
         # save report
-        rp.target().save(self.__engine, df)
-        # keep the dataframe
-        self.__df = df
+        rp.target.save(self.__engine, df)
+        return df
 
-    def run_query(self, sql: str, params: Dict):
-        prepared_sql = render_template(sql, params)
-        self.__df = pd.read_sql(
-            prepared_sql,
-            con=self.__engine
-        )
-        
-    @property
-    def df(self):
-        return self.__df
+    def run_query(self, sql: str, params: Dict) -> DataFrame:
+        return pd.read_sql(render_template(sql, params), con=self.__engine)

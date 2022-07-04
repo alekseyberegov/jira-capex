@@ -1,4 +1,5 @@
 import click
+from pandas import DataFrame
 from jiracapex.cli.cli import pass_environment, Environment
 from jiracapex.reporting.runner import ReportRunner
 
@@ -17,11 +18,10 @@ def cli(ctx: Environment, sqlfile, param, csv):
         sql_query = reader.read()
 
     report = ReportRunner(ctx.engine())
-    report.run_query(sql_query, sql_params)
+    df: DataFrame = report.run_query(sql_query, sql_params)
 
-    print(report.df)
-
+    print(df)
     if csv is not None:
-        report.df.to_csv(csv, sep=',', encoding='utf-8', index=False)
+        df.to_csv(csv, sep=',', encoding='utf-8', index=False)
 
 
