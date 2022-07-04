@@ -4,7 +4,7 @@ from typing import Dict, Any
 from jiracapex.utils.template import render_template
 from jiracapex.reporting.context import ReportContext
 from jiracapex.reporting.target import DbmsTarget, FileTarget, NullTarget, ReportTarget
-from jiracapex.reporting.source import DmbsSource, DmbsSource, ReportSource
+from jiracapex.reporting.source import DmbsSource, FileSource, DmbsSource, ReportSource
 
 class Report:
     __NULL_INOUT: Dict = {'type': None, 'uri': None, 'options': {}}
@@ -17,6 +17,7 @@ class Report:
 
     __SOURCE_FACTORY = {
         'dbms': DmbsSource,
+        'file': FileSource,
          None : DmbsSource
     }
 

@@ -17,6 +17,7 @@ def cli(ctx: Environment, name, param):
 
     runner = ReportRunner(ctx.engine())
     df: DataFrame = runner.run(Report.new_instance(name, context))
+    print(df.dtypes)    
     print(df)
 
 

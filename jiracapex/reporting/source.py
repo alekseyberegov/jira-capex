@@ -26,7 +26,7 @@ class FileSource(ReportSource):
         self.__file = uri
 
     def extract(self, driver: Any) -> DataFrame:
-        pass
+        return pd.read_csv(self.__file, header=0)
 
 class NullSource(ReportSource):
     def configure(self, uri: str, context: ReportContext, **kwargs) -> None:
