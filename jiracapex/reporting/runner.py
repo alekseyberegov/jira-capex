@@ -7,8 +7,7 @@ from jiracapex.reporting.target import DbmsTarget, FileTarget, NullTarget, Repor
 from jiracapex.reporting.source import DmbsSource, DmbsSource, ReportSource
 
 class Report:
-    __NULL_TARGET: Dict = {'type': None, 'output': None, 'options': {}}
-    __NULL_SOURCE: Dict = {'type': None,  'input': None, 'options': {}}
+    __NULL_INOUT: Dict = {'type': None, 'uri': None, 'options': {}}
 
     __TARGET_FACTORY = {
         'dbms': DbmsTarget,
@@ -30,14 +29,14 @@ class Report:
         self.__config  = config
         self.__context = context
 
-    def make_target(self, key: str, output: str, **kwargs) -> ReportTarget:
+    def make_target(self, key: str, uri: str, **kwargs) -> ReportTarget:
         target: ReportTarget = Report.__TARGET_FACTORY[key]()
-        target.configure(output, **kwargs)
+        target.configure(uri, **kwargs)
         return target
 
-    def make_source(self, key: str, input: str, **kwargs) -> ReportSource:
+    def make_source(self, key: str, uri: str, **kwargs) -> ReportSource:
         source: ReportSource = Report.__SOURCE_FACTORY[key]()
-        source.configure(input, self.__context, **kwargs)
+        source.configure(uri, self.__context, **kwargs)
         return source 
 
     def __getitem__(self, key):
@@ -78,13 +77,15 @@ class Report:
 
     @property
     def target(self) -> ReportTarget:
-        params: Dict = self.__config.get('target', Report.__NULL_TARGET)
-        return self.make_target(params['type'], params['output'], **params['options'])
+        return self.inout('target', self.make_target)
 
     @property
     def source(self) -> ReportSource:
-        params: Dict = self.__config.get('source', Report.__NULL_SOURCE)
-        return self.make_source(params['type'], params['input'], **params['options'])     
+        return self.inout('source', self.make_source)
+
+    def inout(self, key: str, func):
+        params: Dict = self.__config.get(key, Report.__NULL_INOUT)
+        return func(params['type'], params['uri'], **params['options'])
 
 class ReportRunner:
     def __init__(self, engine) -> None:

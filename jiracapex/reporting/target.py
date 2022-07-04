@@ -4,7 +4,7 @@ from typing import Any
 
 class ReportTarget(ABC):
     abstractmethod
-    def configure(self, output, **kwargs) -> None:
+    def configure(self, uri: str, **kwargs) -> None:
         pass
 
     @abstractmethod
@@ -12,22 +12,22 @@ class ReportTarget(ABC):
         pass
 
 class DbmsTarget(ReportTarget):
-    def configure(self, output, **kwargs) -> None:
-        self.__output = output
+    def configure(self, uri: str, **kwargs) -> None:
+        self.__table = uri
         self.__params = dict(kwargs)
 
     def save(self, driver: Any, df: DataFrame) -> None:
-        df.to_sql(name=self.__output, con=driver, if_exists='replace')
+        df.to_sql(name=self.__table, con=driver, if_exists='replace')
 
 class FileTarget(ReportTarget):
-    def configure(self, output, **kwargs) -> None:
+    def configure(self, uri: str, **kwargs) -> None:
         pass
 
     def save(self, driver: Any, df: DataFrame) -> None:
         pass
 
 class NullTarget(ReportTarget):
-    def configure(self, output, **kwargs) -> None:
+    def configure(self, uri: str, **kwargs) -> None:
         pass
 
     def save(self, driver: Any, df: DataFrame) -> None:

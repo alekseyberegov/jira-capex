@@ -18,8 +18,8 @@ def calc_timeline(df):
 
 __rep_config = {
     'report' : 'issue_timeline',
-    'source' : {'type': 'dbms', 'input' : '${project_home}/sql/queries/issue_timeline.sql', 'options': {}},
-    'target' : {'type': 'dbms', 'output': 'jira_timeline_${__func_norm:crunch_date}', 'options': {}},
+    'source' : {'type': 'dbms', 'uri' : '${project_home}/sql/queries/issue_timeline.sql', 'options': {}},
+    'target' : {'type': 'dbms', 'uri' : 'jira_timeline_${__func_norm:crunch_date}', 'options': {}},
     'index'  : 'issue_id',
     'derive' : [
         {

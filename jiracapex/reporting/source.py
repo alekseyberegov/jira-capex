@@ -6,7 +6,7 @@ from jiracapex.reporting.context import ReportContext
 
 class ReportSource(ABC):
     abstractmethod
-    def configure(self, input: str, context: ReportContext, **kwargs) -> None:
+    def configure(self, uri: str, context: ReportContext, **kwargs) -> None:
         pass
 
     @abstractmethod
@@ -14,15 +14,22 @@ class ReportSource(ABC):
         pass
 
 class DmbsSource(ReportSource):
-    def configure(self, input: str, context: ReportContext, **kwargs) -> None:
-        with open(input, 'r') as inp: sql = inp.read()
+    def configure(self, uri: str, context: ReportContext, **kwargs) -> None:
+        with open(uri, 'r') as inp: sql = inp.read()
         self.__sql = context.replace_str(sql)
 
     def extract(self, driver: Any) -> DataFrame:
         return pd.read_sql(self.__sql, con=driver) 
 
+class FileSource(ReportSource):
+    def configure(self, uri: str, context: ReportContext, **kwargs) -> None:
+        self.__file = uri
+
+    def extract(self, driver: Any) -> DataFrame:
+        pass
+
 class NullSource(ReportSource):
-    def configure(self, input: str, context: ReportContext, **kwargs) -> None:
+    def configure(self, uri: str, context: ReportContext, **kwargs) -> None:
         pass
 
     def extract(self, driver: Any) -> DataFrame:
