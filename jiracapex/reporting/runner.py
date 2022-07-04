@@ -58,7 +58,9 @@ class Report:
         return df
 
     def select(self, df: DataFrame) -> DataFrame:
-        return df[self['schema'].keys()]
+        if 'schema' in self:
+            df = df[self['schema'].keys()]
+        return df
 
     def split(self, df: DataFrame) -> DataFrame:
         if 'split' in self:
@@ -66,11 +68,13 @@ class Report:
                 df = pd.concat([df.drop([col], axis=1), df[col].apply(pd.Series)], axis=1)
         return df
 
+    def index(self, df: DataFrame) -> DataFrame:
+        if 'index' in self:
+           df =  df.set_index(self['index'])
+        return df
+
     def colsort(self, df: DataFrame) -> DataFrame:
         return df.reindex(sorted(df.columns), axis=1)
-
-    def index(self, df: DataFrame) -> DataFrame:
-        return df.set_index(self['index'])
 
     @property
     def target(self) -> ReportTarget:
