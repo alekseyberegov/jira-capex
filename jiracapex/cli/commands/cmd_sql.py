@@ -17,8 +17,8 @@ def cli(ctx: Environment, sqlfile, param, csv):
     with open(sqlfile, 'r') as reader:
         sql_query = reader.read()
 
-    report = ReportRunner(ctx.engine())
-    df: DataFrame = report.run_query(sql_query, sql_params)
+    runner = ReportRunner(ctx.engine())
+    df: DataFrame = runner.query(sql_query, sql_params)
 
     print(df)
     if csv is not None:

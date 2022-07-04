@@ -19,7 +19,7 @@ def runner(engine) -> ReportRunner:
     runner = ReportRunner(engine)
     return runner
 
-def test_get_report(context: ReportContext, runner: ReportRunner):
-    rpt = runner.get_report('issue_timeline', context)
+def test_get_report(context: ReportContext):
+    rpt = Report.new_instance('issue_timeline', context)
     assert rpt is not None
-    assert rpt['query'] == 'jira-capex/sql/queries/issue_timeline.sql'
+    assert rpt['source']['input'] == 'jira-capex/sql/queries/issue_timeline.sql'

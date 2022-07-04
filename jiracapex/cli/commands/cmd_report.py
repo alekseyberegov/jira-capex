@@ -1,7 +1,7 @@
 import click
 from pandas import DataFrame
 from jiracapex.cli.cli import pass_environment, Environment
-from jiracapex.reporting.runner import ReportRunner
+from jiracapex.reporting.runner import ReportRunner, Report
 from jiracapex.reporting.runner import ReportContext
 
 @click.command("report", short_help="run the report")
@@ -15,8 +15,8 @@ def cli(ctx: Environment, name, param):
         for n, v in param:
             context[n] = v
 
-    report = ReportRunner(ctx.engine())
-    df: DataFrame = report.run_report(name, context)
+    runner = ReportRunner(ctx.engine())
+    df: DataFrame = runner.run(Report.new_instance(name, context))
     print(df)
 
 

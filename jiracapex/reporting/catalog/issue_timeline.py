@@ -18,7 +18,8 @@ def calc_timeline(df):
 
 __rep_config = {
     'report' : 'issue_timeline',
-    'query'  : '${project_home}/sql/queries/issue_timeline.sql',
+    'source' : {'type': 'dbms', 'input' : '${project_home}/sql/queries/issue_timeline.sql', 'options': {}},
+    'target' : {'type': 'dbms', 'output': 'jira_timeline_${__func_norm:crunch_date}', 'options': {}},
     'index'  : 'issue_id',
     'derive' : [
         {
@@ -36,9 +37,7 @@ __rep_config = {
     },
     'split' : [
         'timeline'
-    ],
-    'column': {'sort': True},
-    'target': {'type': 'dbms', 'output': 'jira_timeline_${__func_norm:crunch_date}', 'options': {}}
+    ]
 }
 
 def __init__(context: ReportContext):
