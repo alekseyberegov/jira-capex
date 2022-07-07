@@ -3,33 +3,20 @@ from jiracapex.reporting.context import ReportContext
 
 CATEGORY_NO_CAPEX: str = 'Not Classified to CapEx Category'
 
-# - If any Column in U to AH =1, then count task efforts in that respective CapEx category, otherwise
-# - Count task efforts in the category labeled in Column T
-# - Also, report any tasks for which columns T through AI are all empty, or columns U through AI sum to more than 1. 
-# - Also, report any tasks for which columns T through AI are all empty (and "Is Support" = NO), 
-#       or columns U through AI sum to more than 1. 
 def calc_capex(df: pd.DataFrame):
     def func(x):
-        capex: int = 0
         x = x.dropna()
-        # - Also, report any tasks for which columns T through AI are all empty, or columns U through AI sum to more than 1.
-        for c in x.keys():
-            if c.startswith('ct_') and c != 'ct_no_capex':
-                capex += x[c]
-        cat: str = x.get('task_category', 'n/a')
-        neg: int = x.get('ct_no_capex', 0)
+        capex: int = sum(v for k,v in x.to_dict().items() if k.startswith('ct_') and k != 'ct_no_capex') 
+        task_cat: str = x.get('task_category', 'n/a')
+        task_exp: int = x.get('ct_no_capex'  , 0)
 
-        # - Ignore / do not count efforts for tickets containing "ARCH"
-        # - If Column "Is Support" = Yes, then count task efforts as "Not Classified to CapEx Category"
-        # - If Column "Not Classified to CapEx Category" = 1, then count task efforts as "Not Classified to CapEx Category"
         if x.name.startswith('ARCH') \
             or x.is_support.upper() == 'YES' \
-                or neg == 1 \
-                    or cat == CATEGORY_NO_CAPEX:
+                or task_exp == 1 \
+                    or task_cat == CATEGORY_NO_CAPEX:
             if capex > 0: capex = -1
         else:
-            # - If any Column in U to AH =1, then count task efforts in that respective CapEx category,
-            if capex == 0 and cat != 'n/a': capex = 1
+            if capex == 0 and task_cat != 'n/a': capex = 1
             if capex == 0: capex = -1
 
         return capex
