@@ -7,8 +7,9 @@ from jiracapex.reporting.runner import ReportContext
 @click.command("report", short_help="run the report")
 @click.argument("name", type=str)
 @click.option('--param',  multiple=True, type=(str, str))
+@click.option('--cols',  is_flag=True)
 @pass_environment
-def cli(ctx: Environment, name, param):
+def cli(ctx: Environment, name, param, cols):
     context: ReportContext = ReportContext()
     context['project_home'] = ctx.home
     if param is not None:
@@ -17,7 +18,7 @@ def cli(ctx: Environment, name, param):
 
     runner = ReportRunner(ctx.engine())
     df: DataFrame = runner.run(Report.new_instance(name, context))
-    print(df.dtypes)    
+    if cols: print(df.dtypes)
     print(df)
 
 

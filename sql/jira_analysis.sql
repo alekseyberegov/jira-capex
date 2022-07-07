@@ -13,7 +13,21 @@ from (
 	order by 1
 )
 
-select * from jira_timeline
+select * 
+from jira_timeline_2020_01_01 jt 
+where  vv_2020_01_n > 30
+	or vv_2020_02_n > 30 
+	or vv_2020_03_n > 30 
+	or vv_2020_04_n > 30 
+	or vv_2020_05_n > 30 
+	or vv_2020_06_n > 30 
+	or vv_2020_07_n > 30 
+	or vv_2020_08_n > 30 
+	or vv_2020_09_n > 30 
+	or vv_2020_10_n > 30 
+	or vv_2020_11_n > 30 
+	or vv_2020_11_n > 30 
+
 
 drop table jira_timeline
 

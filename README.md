@@ -44,6 +44,9 @@
   ```
   $ ./cli.sh report --param crunch_date "2020-01-01" "issue_timeline"
   ```
+  ```
+  $ ./cli.sh report --param crunch_date "2020-01-01" "issue_categories"
+  ```
 ## JQL examples
 * Issues worked on during specific dates
   ```

@@ -47,7 +47,7 @@ class Report:
         return key in self.__config
 
     def transform(self, df: DataFrame) -> DataFrame:
-        for m in [self.derive, self.select, self.split, self.colsort, self.index]:
+        for m in [self.index,self.schema,  self.derive, self.split, self.colsort]:
             df = m(df)
         return df
 
@@ -57,9 +57,15 @@ class Report:
                 df[m['name']] = m['calc'](df)
         return df
 
-    def select(self, df: DataFrame) -> DataFrame:
+    def schema(self, df: DataFrame) -> DataFrame:
         if 'schema' in self:
             df = df[self['schema'].keys()]
+            rename = {}
+            for c,d in self['schema'].items():
+                if 'name' in d:
+                    rename[c] = d['name']
+            if len(rename) > 0:
+                df = df.rename(columns=rename)
         return df
 
     def split(self, df: DataFrame) -> DataFrame:
