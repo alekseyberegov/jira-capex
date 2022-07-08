@@ -40,7 +40,7 @@
   ```
   $ ./cli.sh sql ./sql/queries/issue_lifecycle.sql
   ```
-* Run report
+* Run reports
   ```
   $ ./cli.sh report --param crunch_date "2020-01-01" "issue_timeline"
   ```

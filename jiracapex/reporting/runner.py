@@ -47,19 +47,20 @@ class Report:
         return key in self.__config
 
     def transform(self, df: DataFrame) -> DataFrame:
-        for m in [self.index,self.schema,  self.derive, self.split, self.colsort]:
+        for m in [self.schema, self.derive, self.split, self.index, self.colsort]:
             df = m(df)
         return df
 
     def derive(self, df: DataFrame) -> DataFrame:
         if 'derive' in self:
             for m in self['derive']:
-                df[m['name']] = m['calc'](df)
+                func = m['calc']
+                df[m['name']] = df.apply(lambda x: func(x), axis=1)
         return df
 
     def schema(self, df: DataFrame) -> DataFrame:
         if 'schema' in self:
-            df = df[self['schema'].keys()]
+            df = df.loc[:,self['schema'].keys()]
             rename = {}
             for c,d in self['schema'].items():
                 if 'name' in d:

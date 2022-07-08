@@ -13,6 +13,33 @@ from (
 	order by 1
 )
 
+select capex_ind
+    , is_support
+	, ct_no_capex
+	, ifnull(task_category, 'abczgucb') = 'Not Classified to CapEx Category' as not_classifed
+	, count(1) cnt
+	, sum(count(1)) over() as total_cnt
+from jira_category_2020_01_01
+group by 1, 2, 3
+
+
+
+select emp_name
+from jira_category_2020_01_01
+
+
+capex_ind|is_support|ct_no_capex|not_classifed|cnt|total_cnt|
+---------+----------+-----------+-------------+---+---------+
+      0.0|No        |           |            1|636|     2625|
+      0.0|No        |        1.0|            0|621|     2625|
+      0.0|Yes       |           |            1|544|     2625|
+      0.0|Yes       |        1.0|            0| 30|     2625|
+      1.0|No        |           |            0|794|     2625|
+
+select *
+from jira_category_2020_01_01
+where capex_ind not in (0,1)
+
 select * 
 from jira_timeline_2020_01_01 jt 
 where  vv_2020_01_n > 30
