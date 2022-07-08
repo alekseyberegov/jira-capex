@@ -1,24 +1,25 @@
-import pandas as pd
+from typing import List
 from jiracapex.reporting.context import ReportContext
 
 CATEGORY_NO_CAPEX: str = 'Not Classified to CapEx Category'
 
 def calc_capex(x):
     x = x.dropna()
-    capex: int = sum(v for k,v in x.to_dict().items() if k.startswith('ct_') and k != 'ct_no_capex') 
-    task_cat: str = x.get('task_category', 'n/a')
-    task_exp: int = x.get('ct_no_capex'  , 0)
+    cats: List = [k for k,v in x.to_dict().items() if k.startswith('ct_') and k != 'ct_no_capex' and v == 1]
+    capex: int = len(cats)
+    stamp: str = x.get('task_category', 'n/a')
 
     if x.task_id.startswith('ARCH') \
         or x.is_support.upper() == 'YES' \
-            or task_exp == 1 \
-                or task_cat == CATEGORY_NO_CAPEX:
+            or x.get('ct_no_capex', 0) == 1 \
+                or stamp == CATEGORY_NO_CAPEX:
         if capex > 0: capex = -1
     else:
-        if capex == 0 and task_cat != 'n/a': capex = 1
+        if capex == 0 and stamp != 'n/a': capex = 1
         if capex == 0: capex = -1
 
-    return capex
+    stamp = 'ct_no_capex' if capex <= 0 else cats[0] if stamp == 'n/a' else __rep_config['schema'][stamp]['name']
+    return {'capex_ind': capex, 'stamp': stamp}
 
 __rep_config = {
     'report' : 'issue_categories',
@@ -58,9 +59,12 @@ __rep_config = {
     },
     'derive' : [
         {
-            'name': 'capex_ind',
+            'name': 'capex_data',
             'calc': calc_capex
         }
+    ],
+    'split' : [
+        'capex_data'
     ],
     'index'  : 'task_id'
 }

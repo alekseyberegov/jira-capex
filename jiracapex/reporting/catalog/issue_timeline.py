@@ -20,12 +20,12 @@ __rep_config = {
     },
     'derive' : [
         {
-            'name': 'tmjson',
+            'name': 'issue_months',
             'calc': calc_timeline
         }
     ],
     'split' : [
-        'tmjson'
+        'issue_months'
     ],
     'index'  : 'issue_id'
 }
