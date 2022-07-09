@@ -23,10 +23,12 @@ from jira_category_2020_01_01
 group by 1, 2, 3
 
 
-
-select emp_name
+select stamp
+	, capex_ind
+	, count(1) cnt
+	, sum(count(1)) over(PARTITION by capex_ind) as group_cnt
 from jira_category_2020_01_01
-
+group by 1, 2
 
 capex_ind|is_support|ct_no_capex|not_classifed|cnt|total_cnt|
 ---------+----------+-----------+-------------+---+---------+
@@ -54,6 +56,74 @@ where  vv_2020_01_n > 30
 	or vv_2020_10_n > 30 
 	or vv_2020_11_n > 30 
 	or vv_2020_11_n > 30 
+	
+select project_key, count(1)
+from jira_issues  jil 
+group by 1
+
+
+select emp_name
+	, month_date
+	, stamp
+	, round(emp_total, max(e_m / emp_total), 2) as emp_month
+	, round(sum(efforts * t_m / duration), 2) as efforts_month
+from (
+	select *
+		, IFNULL(json_extract(e_a,'$['||month_num||']'),0) as e_m
+		, IFNULL(json_extract(t_a,'$['||month_num||']'),0) as t_m
+	from (
+		WITH RECURSIVE
+		  month_gen(x) AS (
+		     SELECT 0
+		     UNION ALL
+		     SELECT x+1 FROM month_gen
+		      LIMIT (SELECT ROUND(((julianday('2020-12-01') - julianday('2020-01-01'))/30) + 1))
+		  )
+		SELECT date(julianday('2020-01-01'), '+' || x || ' month') as month_date
+			, x as month_num
+			, c.emp_name 
+			, c.task_id 
+			, c.stamp
+			, c.capex_ind 
+			, c.efforts 
+			, json_array(
+					e.vv_2020_01, e.vv_2020_02, e.vv_2020_03, e.vv_2020_04, e.vv_2020_05, e.vv_2020_06
+				  , e.vv_2020_07, e.vv_2020_08, e.vv_2020_09, e.vv_2020_10, e.vv_2020_11, e.vv_2020_12) as e_a
+			, e.emp_total
+			, json_array(
+					t.vv_2020_01, t.vv_2020_02, t.vv_2020_03, t.vv_2020_04, t.vv_2020_05, t.vv_2020_06
+				  , t.vv_2020_07, t.vv_2020_08, t.vv_2020_09, t.vv_2020_10, t.vv_2020_11, t.vv_2020_12) as t_a
+			, t.duration 
+		FROM month_gen 
+			cross join jira_category_2020_01_01 c 
+			left join jira_gusto jg on (jg.jira_emp_name = c.emp_name)
+			left join employee_participation_2020_01_01 e  on (jg.gusto_emp_name = e.emp_name)
+			left join jira_timeline_2020_01_01 t on (t.issue_key = c.task_id)
+		group by 1, 2, 3, 4, 5, 6
+	) 
+)
+group by 1, 2, 3, 4
+	
+
+select count(1) * 12 from jira_category_2020_01_01
+	
+	
+select c.emp_name as jira , e.emp_name as gusto, count(1)
+from jira_category_2020_01_01 c 
+	left join jira_gusto jg on (jg.jira_emp_name = c.emp_name)
+	left join employee_participation_2020_01_01 e  on (jg.gusto_emp_name = e.emp_name)
+group by 1, 2
+
+
+
+
+
+select *
+from jira_gusto jg 
+
+
+select *
+from employee_participation_2020_01_01
 
 
 drop table jira_timeline

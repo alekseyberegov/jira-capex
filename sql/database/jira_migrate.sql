@@ -1,3 +1,7 @@
+DELETE FROM jira_status;
+
+SELECT count(1) FROM jira_status;
+
 
 INSERT into jira_status(id, status_name_from, status_from, status_name_to, status_to, issue_id, created_date , author_id, author_name )
 		select id
@@ -61,6 +65,10 @@ INSERT into jira_status(id, status_name_from, status_from, status_name_to, statu
 												or items_8_field_name = 'status'
 													or items_9_field_name = 'status'
 							
+
+DELETE FROM jira_issue_lifecycle;
+
+SELECT count(1) FROM jira_issue_lifecycle;
 
 insert into jira_issue_lifecycle(
 	  issue_id
