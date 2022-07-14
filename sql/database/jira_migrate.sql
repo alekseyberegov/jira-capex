@@ -113,8 +113,8 @@ from (
 		, js.status_name_from as s0
 		, js.status_name_to   as s1
 	from jira_status js inner join jira_issues ji on (js.issue_id = ji.id)
-	where status_name not in ('Won''t Do') 
-		and resolution_name not in ('Won''t Do', 'Duplicate')
+	where IFNULL(status_name, 'Unknown') not in ('Won''t Do') 
+		and IFNULL(resolution_name, 'Unknown') not in ('Won''t Do', 'Duplicate')
 	order by 1, 2
 ) d
 group by 1, 2
