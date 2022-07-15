@@ -13,7 +13,7 @@ from (
 		, stamp
 		, max(emp_total) as emp_contrib
 		, max(e_m / emp_total) as w2_fraction
-		, sum(efforts * t_m / duration) as efforts_category
+		, sum(IFNULL(efforts * t_m / duration,0)) as efforts_category
 	from (
 		select m.value as month_num
 			, date(julianday('2020-01-01'), '+' || m.value || ' month') as month_date

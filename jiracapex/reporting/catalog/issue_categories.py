@@ -13,7 +13,7 @@ def calc_capex(x):
         or x.is_support.upper() == 'YES' \
             or x.get('ct_no_capex', 0) == 1 \
                 or stamp == CATEGORY_NO_CAPEX:
-        if capex > 0: capex = -1
+        if capex > 0: capex = -2
     else:
         if capex == 0 and stamp != 'n/a': capex = 1
         if capex == 0: capex = -1

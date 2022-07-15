@@ -19,9 +19,20 @@ select capex_ind
 	, ifnull(task_category, 'abczgucb') = 'Not Classified to CapEx Category' as not_classifed
 	, count(1) cnt
 	, sum(count(1)) over() as total_cnt
-from jira_category_2020_01_01
+from jira_category_2021_01_01
 group by 1, 2, 3
 
+
+select *
+from jira_category_2021_01_01
+where capex_ind < 0
+
+update jira_category_2021_01_01 set capex_ind = 0 where task_id = 'ILV-4871'
+
+
+select *
+from jira_category_2021_01_01
+where task_id = 'BAC-5130'
 
 select stamp
 	, capex_ind
@@ -43,19 +54,19 @@ from jira_category_2020_01_01
 where capex_ind not in (0,1)
 
 select * 
-from jira_timeline_2020_01_01 jt 
-where  vv_2020_01_n > 30
-	or vv_2020_02_n > 30 
-	or vv_2020_03_n > 30 
-	or vv_2020_04_n > 30 
-	or vv_2020_05_n > 30 
-	or vv_2020_06_n > 30 
-	or vv_2020_07_n > 30 
-	or vv_2020_08_n > 30 
-	or vv_2020_09_n > 30 
-	or vv_2020_10_n > 30 
-	or vv_2020_11_n > 30 
-	or vv_2020_11_n > 30 
+from jira_timeline_2021_01_01 jt 
+where  vv_2021_01 > 30
+	or vv_2021_02 > 30 
+	or vv_2021_03 > 30 
+	or vv_2021_04 > 30 
+	or vv_2021_05 > 30 
+	or vv_2021_06 > 30 
+	or vv_2021_07 > 30 
+	or vv_2021_08 > 30 
+	or vv_2021_09 > 30 
+	or vv_2021_10 > 30 
+	or vv_2021_11 > 30 
+	or vv_2021_11 > 30 
 	
 select project_key, count(1)
 from jira_issues  jil 
@@ -130,37 +141,35 @@ from (
 		, stamp
 		, max(emp_total) as emp_contrib
 		, max(e_m / emp_total) as w2_fraction
-		, sum(efforts * t_m / duration) as efforts_category
+		, sum(IFNULL(efforts * t_m / duration,0)) as efforts_category
 	from (
 		select m.value as month_num
-			, date(julianday('2020-01-01'), '+' || m.value || ' month') as month_date
+			, date(julianday('2021-01-01'), '+' || m.value || ' month') as month_date
 			, w.*
 			, IFNULL(json_extract(e_a,'$['||m.value||']'),0) as e_m
 			, IFNULL(json_extract(t_a,'$['||m.value||']'),0) as t_m
 		from (
-				SELECT c.emp_name 
+				SELECT COALESCE(e.emp_name, c.emp_name) as emp_name
 					, c.task_id 
 					, c.stamp
 					, c.capex_ind 
 					, c.efforts 
 					, json_array(
-							e.vv_2020_01, e.vv_2020_02, e.vv_2020_03, e.vv_2020_04, e.vv_2020_05, e.vv_2020_06
-						  , e.vv_2020_07, e.vv_2020_08, e.vv_2020_09, e.vv_2020_10, e.vv_2020_11, e.vv_2020_12) as e_a
+							e.vv_2021_01, e.vv_2021_02, e.vv_2021_03, e.vv_2021_04, e.vv_2021_05, e.vv_2021_06
+						  , e.vv_2021_07, e.vv_2021_08, e.vv_2021_09, e.vv_2021_10, e.vv_2021_11, e.vv_2021_12) as e_a
 					, e.emp_total
 					, json_array(
-							t.vv_2020_01, t.vv_2020_02, t.vv_2020_03, t.vv_2020_04, t.vv_2020_05, t.vv_2020_06
-						  , t.vv_2020_07, t.vv_2020_08, t.vv_2020_09, t.vv_2020_10, t.vv_2020_11, t.vv_2020_12) as t_a
+							t.vv_2021_01, t.vv_2021_02, t.vv_2021_03, t.vv_2021_04, t.vv_2021_05, t.vv_2021_06
+						  , t.vv_2021_07, t.vv_2021_08, t.vv_2021_09, t.vv_2021_10, t.vv_2021_11, t.vv_2021_12) as t_a
 					, t.duration 
-				FROM jira_category_2020_01_01 c 
-					left join jira_timeline_2020_01_01 t on (t.issue_key = c.task_id)
+				FROM jira_category_2021_01_01 c 
+					left join jira_timeline_2021_01_01 t on (t.issue_key = c.task_id)
 					left join jira_gusto jg on (jg.jira_emp_name = c.emp_name)
-					left join employee_participation_2020_01_01 e  on (jg.gusto_emp_name = e.emp_name)
-				order by 1
+					left join employee_participation_2021_01_01 e on (jg.gusto_emp_name = e.emp_name)
 		) w cross join generate_series m
-	) 
+	) x
 	group by 1, 2, 3
 ) d
-
 
 
 select *
@@ -227,11 +236,14 @@ select count(1) * 12 from jira_category_2020_01_01
 	
 	
 select c.emp_name as jira , e.emp_name as gusto, count(1)
-from jira_category_2020_01_01 c 
+from jira_category_2021_01_01 c 
 	left join jira_gusto jg on (jg.jira_emp_name = c.emp_name)
-	left join employee_participation_2020_01_01 e  on (jg.gusto_emp_name = e.emp_name)
+	left join employee_participation_2021_01_01 e  on (jg.gusto_emp_name = e.emp_name)
 group by 1, 2
 
+select c.emp_name as jira, count(1)
+from jira_category_2021_01_01 c
+group by 1
 
 
 
