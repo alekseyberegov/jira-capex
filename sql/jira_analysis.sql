@@ -149,7 +149,7 @@ from (
 			, IFNULL(json_extract(e_a,'$['||m.value||']'),0) as e_m
 			, IFNULL(json_extract(t_a,'$['||m.value||']'),0) as t_m
 		from (
-				SELECT COALESCE(e.emp_name, c.emp_name) as emp_name
+				SELECT COALESCE(c.emp_name, c.emp_name) as emp_name
 					, c.task_id 
 					, c.stamp
 					, c.capex_ind 
@@ -170,23 +170,6 @@ from (
 	) x
 	group by 1, 2, 3
 ) d
-
-
-select *
-from jira_timeline_2020_01_01
-where issue_key like 'PROD%'
-
--- 63502
-select *
-from jira_issues ji 
-where key in ('PROD-118')
-
-
-	
-
-select *
-from jira_issue_lifecycle  jc 
-where issue_id = 63502
 
 
 with recursive generate_series(value) AS (
@@ -230,15 +213,12 @@ select emp_name
 
 
 
-	
 
-select count(1) * 12 from jira_category_2020_01_01
-	
 	
 select c.emp_name as jira , e.emp_name as gusto, count(1)
-from jira_category_2021_01_01 c 
+from jira_category_2020_01_01 c 
 	left join jira_gusto jg on (jg.jira_emp_name = c.emp_name)
-	left join employee_participation_2021_01_01 e  on (jg.gusto_emp_name = e.emp_name)
+	left join employee_participation_2020_01_01 e  on (jg.gusto_emp_name = e.emp_name)
 group by 1, 2
 
 select c.emp_name as jira, count(1)
@@ -246,10 +226,28 @@ from jira_category_2021_01_01 c
 group by 1
 
 
+delete from jira_changelog where issue_id  in (
+	select ji.id, max_date, status_change_date, updated_date
+	from jira_issues ji left join (
+		select issue_id, max(created_date) as max_date
+		from jira_changelog jc 
+		group by 1
+	) d on (d.issue_id = ji.id)
+	where status_change_date > max_date or updated_date > max_date 
+)
 
+select  max(created_date)
+from jira_issues ji   
+limit 100
 
 select *
 from jira_gusto jg 
+
+select max(created_date)
+from jira_changelog jc 
+
+select *
+from jira_issue_lifecycle jil 
 
 
 select *
@@ -257,6 +255,16 @@ from employee_participation_2020_01_01
 
 
 drop table jira_timeline
+
+
+select max(created_date)
+from jira_issues ji 
+
+
+select issue_created, count(1)
+from jira_issue_lifecycle
+group by 1
+order by 1 asc
 
 select DATE('2022-10-02','+1 year')
 
@@ -299,10 +307,7 @@ from (
 group by 1
 order by 3 desc
 
-	, sum((JULIANDAY(status_updated) - JULIANDAY(COALESCE(prev_status_updated, issue_created))) * from_progress) AS work_days
-	
-	
-delete from jira_issue_lifecycle 
+
 
 insert into jira_issue_lifecycle(
 	  issue_id
@@ -621,3 +626,100 @@ from (
 )
 where lower(nm) like '%points%'
 group by 1
+
+
+
+
+
+
+
+select emp_id
+	, emp_name
+	, task_id
+	, task_name
+	, capex_category
+	, (case when (capex_category is not null and capex_category = 'No Capitalization' ) 
+		or  task_id like 'IEN-%' 
+			or project_id like 'IEN-%' 
+				or (project_id is null and (terms_cnt > 0 or exclude_cnt > 0)) then 'Yes' else 'No' end) as is_support
+	, points
+	, case when points > 0 then round(-2.860678277+points*3.887259395,0) else 2 end as efforts
+	, project_id
+	, project_driver
+	, project_desc
+	, start_date
+	, end_date
+	, created_date  
+	, updated_date 
+	, status_change_date 
+	, status_name 
+	, resolution_name 
+	, julianday(end_date) - julianday(start_date  ) + 1 as days_spent
+	, julianday(end_date) - julianday(created_date) + 1 as lifespan
+	, last_points
+from (
+		select COALESCE(ji.assignee_id, ji.creator_id) as emp_id
+			, COALESCE(e.name, ji.assignee_name, ji.creator_name)  as emp_name
+			, ji."key" as task_id
+			, lower(ji.summary) as task_name
+			, max(ifnull(ji.points_meas,0), ifnull(pc.max_from,0), ifnull(pc.max_to,0)  ) as points
+			, ji.points_meas as last_points
+			, ji.parent_key as project_id
+			, ji.parent_summary  as project_desc
+			, jo.capex_category 
+			, jo.project_driver 
+			, case when inprogress_date is not null and inprogress_date > st.start_date then inprogress_date else start_date end as start_date
+			, case when closed_date is not null and closed_date < end_date then closed_date else end_date end as end_date  
+			, ji.created_date  
+			, ji.updated_date 
+			, ji.status_change_date 
+			, ji.status_name 
+			, ji.resolution_name 
+			, (select count(1) from jira_nord_terms  where instr( lower(ji.summary), term) > 0) as terms_cnt
+			, (select count(1) from jira_support_issues where ji."key" = issue_key) as exclude_cnt
+		from jira_issues ji 
+			left join jira_ol jo on (jo.id = ji.parent_id)
+			left join (
+					select issue_id
+						, min(created_date) as start_date
+						, max(created_date) as end_date
+						, max(case when status_name_to = 'Closed' then created_date end) as closed_date
+						, max(case when status_name_to = 'In Progress' then created_date end) as inprogress_date
+					from jira_status js 
+					where status_name_to in ('Done', 'In Progress', 'Closed', 'Implementing', 'Released', 'Solved', 'Finished')
+					group by 1
+			) st on (st.issue_id = ji.id)
+			left join (
+				select issue_id
+				, max(cast(ifnull(from_txt,0) as int) )  as max_from
+				, max(cast(to_txt as int) ) as max_to
+				from (
+					select items_0_field_name as nm, issue_id, jc.items_0_from_text as from_txt,  jc.items_0_to_text as to_txt
+					from jira_changelog jc 
+					union all
+					select items_1_field_name as nm, issue_id, jc.items_1_from_text as from_txt,  jc.items_1_to_text as to_txt
+					from jira_changelog jc 
+					union ALL 
+					select items_2_field_name as nm, issue_id, jc.items_2_from_text as from_txt,  jc.items_2_to_text as to_txt
+					from jira_changelog jc 
+					union ALL 
+					select items_3_field_name as nm, issue_id, jc.items_3_from_text as from_txt,  jc.items_3_to_text as to_txt
+					from jira_changelog jc 
+					union ALL 
+					select items_4_field_name as nm, issue_id, jc.items_4_from_text as from_txt,  jc.items_4_to_text as to_txt
+					from jira_changelog jc 
+				) d
+				where lower(nm) like '%points%'
+				group by 1
+			) pc on (pc.issue_id = ji.id)
+			left join jira_former_employees e on (COALESCE(ji.assignee_id, ji.creator_id) = e.id)
+		order by 2, 1
+	) d 
+where status_name <> 'Won''t Do' 
+		and IFNULL(resolution_name, 'Empty') <> 'Won''t Do' 
+			and IFNULL(resolution_name, 'Empty') <> 'Cannot Reproduce' 
+				and IFNULL(resolution_name, 'Empty') <> 'Duplicate'
+					and end_date >= '2022-01-01'
+						and created_date < '2022-05-01'
+	
+

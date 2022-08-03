@@ -32,7 +32,7 @@
   ```
 * Load changelog
   ```
-  ./cli.sh changelog all --max-results 100
+  ./cli.sh changelog all --max-results 1000
   ```
 
 ## Reporting

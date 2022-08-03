@@ -12,29 +12,30 @@ select emp_id
 	, project_id
 	, project_driver
 	, project_desc
-	, start_date
+	, beg_date
 	, end_date
 	, created_date  
 	, updated_date 
 	, status_change_date 
 	, status_name 
 	, resolution_name 
-	, julianday(end_date) - julianday(start_date  ) + 1 as days_spent
+	, julianday(end_date) - julianday(beg_date    ) + 1 as days_spent
 	, julianday(end_date) - julianday(created_date) + 1 as lifespan
 	, last_points
+	, status_log
 from (
 		select COALESCE(ji.assignee_id, ji.creator_id) as emp_id
 			, COALESCE(e.name, ji.assignee_name, ji.creator_name)  as emp_name
 			, ji."key" as task_id
 			, lower(ji.summary) as task_name
-			, max(ifnull(ji.points_meas,0), ifnull(pc.max_from,0), ifnull(pc.max_to,0)  ) as points
+			, max(ifnull(ji.points_meas,0), ifnull(pc.max_from,0), ifnull(pc.max_to,0)) as points
 			, ji.points_meas as last_points
 			, ji.parent_key as project_id
 			, ji.parent_summary  as project_desc
 			, jo.capex_category 
 			, jo.project_driver 
-			, case when inprogress_date is not null and inprogress_date > st.start_date then inprogress_date else start_date end as start_date
-			, case when closed_date is not null and closed_date < end_date then closed_date else end_date end as end_date  
+			, COALESCE(work_started, issue_started, issue_created) as beg_date
+			, COALESCE(work_ended, issue_completed) as end_date
 			, ji.created_date  
 			, ji.updated_date 
 			, ji.status_change_date 
@@ -42,18 +43,10 @@ from (
 			, ji.resolution_name 
 			, (select count(1) from jira_nord_terms  where instr( lower(ji.summary), term) > 0) as terms_cnt
 			, (select count(1) from jira_support_issues where ji."key" = issue_key) as exclude_cnt
+			, jil.status_log 
 		from jira_issues ji 
+			left join jira_issue_lifecycle jil on (jil.issue_id = ji.id)
 			left join jira_ol jo on (jo.id = ji.parent_id)
-			left join (
-					select issue_id
-						, min(created_date) as start_date
-						, max(created_date) as end_date
-						, max(case when status_name_to = 'Closed' then created_date end) as closed_date
-						, max(case when status_name_to = 'In Progress' then created_date end) as inprogress_date
-					from jira_status js 
-					where status_name_to in ('Done', 'In Progress', 'Closed', 'Implementing', 'Released', 'Solved', 'Finished')
-					group by 1
-			) st on (st.issue_id = ji.id)
 			left join (
 				select issue_id
 				, max(cast(ifnull(from_txt,0) as int) )  as max_from
@@ -73,6 +66,21 @@ from (
 					union ALL 
 					select items_4_field_name as nm, issue_id, jc.items_4_from_text as from_txt,  jc.items_4_to_text as to_txt
 					from jira_changelog jc 
+					union ALL 
+					select items_5_field_name as nm, issue_id, jc.items_5_from_text as from_txt,  jc.items_5_to_text as to_txt
+					from jira_changelog jc 
+					union ALL 
+					select items_6_field_name as nm, issue_id, jc.items_6_from_text as from_txt,  jc.items_6_to_text as to_txt
+					from jira_changelog jc 
+					union ALL 
+					select items_7_field_name as nm, issue_id, jc.items_7_from_text as from_txt,  jc.items_7_to_text as to_txt
+					from jira_changelog jc 
+					union ALL 
+					select items_8_field_name as nm, issue_id, jc.items_8_from_text as from_txt,  jc.items_8_to_text as to_txt
+					from jira_changelog jc 
+					union ALL 
+					select items_9_field_name as nm, issue_id, jc.items_9_from_text as from_txt,  jc.items_9_to_text as to_txt
+					from jira_changelog jc 
 				) d
 				where lower(nm) like '%points%'
 				group by 1
@@ -85,5 +93,5 @@ where status_name <> 'Won''t Do'
 			and IFNULL(resolution_name, 'Empty') <> 'Cannot Reproduce' 
 				and IFNULL(resolution_name, 'Empty') <> 'Duplicate'
 					and end_date >= '2022-01-01'
-						and created_date < '2022-05-01'
+						and created_date < '2022-07-01'
 	
