@@ -172,6 +172,20 @@ from (
 ) d
 
 
+				SELECT c.emp_name
+					, c.task_id 
+					, c.task_name 
+					, c.stamp
+					, c.capex_ind 
+					, c.efforts 
+					, COALESCE(t.beg_date, c.updated_date) as beg_date
+					, COALESCE(t.end_date, c.updated_date) as end_date 
+				FROM jira_category_2020_01_01 c 
+					left join jira_timeline_2020_01_01 t on (t.issue_key = c.task_id)
+				order by 1, 2
+
+
+
 with recursive generate_series(value) AS (
   select 0
   union all
